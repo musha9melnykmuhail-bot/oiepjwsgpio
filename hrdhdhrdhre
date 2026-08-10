@@ -729,6 +729,7 @@ local teleportsPage  = createTab("Teleports", "📍")
 local automationPage = createTab("Automation", "⚙")
 local miscPage       = createTab("Miscellaneous", "🔧")
 local otherPage      = createTab("Other", "⭐")
+local settingsPage   = createTab("Settings", "⚙") -- Новая вкладка!
 
 local function GetMurderer()
     for _, plr in ipairs(Players:GetPlayers()) do
@@ -1704,7 +1705,7 @@ miscPage:AddToggle("Chat Spammer", false, function(state)
     if state then
         spammerLoop = task.spawn(function()
             while true do
-                ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents"):FindFirstChild("SayMessageRequest"):FireServer("ThoriumLib v2.0 EzOpenSource strictly on top!", "All")
+                ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents"):FindFirstChild("SayMessageRequest"):FireServer("ThoriumLib v2.1 EzOpenSource strictly on top!", "All")
                 task.wait(3)
             end
         end)
@@ -1840,8 +1841,6 @@ table.insert(activeCleanups, function()
     if gammaEffect then gammaEffect:Destroy() end
 end)
 
--- ДОБАВЛЕННЫЕ ФУНКЦИИ (Astral Steps & Synthwave Matrix) --
-
 local astralStepsLoop = nil
 extraPage:AddToggle("Astral Steps (Звездные Следы)", false, function(state)
     if state then
@@ -1974,7 +1973,6 @@ table.insert(activeCleanups, function()
     originalProps = {}
 end)
 
--- (Cyber Twilight, Starlight Fog, Aether Rain, Eclipse Light, Cloud Drift) --
 
 local backupClockTime = Lighting.ClockTime
 local backupColorShift = Lighting.ColorShift_Top
@@ -2120,6 +2118,220 @@ table.insert(activeCleanups, function()
     if customDriftClouds then customDriftClouds:Destroy() customDriftClouds = nil end
 end)
 
+-- ==========================================
+-- SETTINGS PAGE (Новые функции)
+-- ==========================================
+
+-- 1. Keybind System (Например для Gamma Mode)
+local gammaBindKey = Enum.KeyCode.G
+local listeningForGammaBind = false
+settingsPage:AddButton("Bind Gamma Mode: [G]", function(btnRef)
+    listeningForGammaBind = true
+    btnRef.Text = "Press ANY key..."
+    task.spawn(function()
+        while listeningForGammaBind do task.wait(0.1) end
+        btnRef.Text = "Bind Gamma Mode: [" .. gammaBindKey.Name .. "]"
+    end)
+end)
+
+local settingsKeybindConn = UserInputService.InputBegan:Connect(function(input, gp)
+    if listeningForGammaBind and input.UserInputType == Enum.UserInputType.Keyboard then
+        gammaBindKey = input.KeyCode
+        listeningForGammaBind = false
+        return
+    end
+    if not gp and input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == gammaBindKey then
+        local existing = Lighting:FindFirstChild("ThoriumGamma")
+        if existing then
+            existing:Destroy()
+        else
+            local g = Instance.new("ColorCorrectionEffect")
+            g.Name = "ThoriumGamma"
+            g.Brightness = 0.2
+            g.Contrast = 0.2
+            g.Saturation = 0.5
+            g.Parent = Lighting
+        end
+    end
+end)
+table.insert(activeCleanups, function() settingsKeybindConn:Disconnect() end)
+
+-- 2. Custom Fonts
+local uiFonts = {Enum.Font.GothamMedium, Enum.Font.Code, Enum.Font.Jura, Enum.Font.Oswald, Enum.Font.Roboto}
+local currentFontIdx = 1
+settingsPage:AddButton("Cycle UI Font: GothamMedium", function(btnRef)
+    currentFontIdx = currentFontIdx % #uiFonts + 1
+    local selectedFont = uiFonts[currentFontIdx]
+    btnRef.Text = "Cycle UI Font: " .. selectedFont.Name
+    
+    for _, obj in ipairs(ScreenGui:GetDescendants()) do
+        if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
+            pcall(function() obj.Font = selectedFont end)
+        end
+    end
+    -- Для оверлеев:
+    local ovGui = CoreGui:FindFirstChild("ThoriumOverlayGui") or (LocalPlayer:FindFirstChild("PlayerGui") and LocalPlayer.PlayerGui:FindFirstChild("ThoriumOverlayGui"))
+    if ovGui then
+        for _, obj in ipairs(ovGui:GetDescendants()) do
+            if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
+                pcall(function() obj.Font = selectedFont end)
+            end
+        end
+    end
+end)
+
+-- 3. UI Colors
+local menuColors = {
+    {name = "Dark Blue (Default)", bg = Color3.fromRGB(16, 16, 22), side = Color3.fromRGB(12, 12, 18), prof = Color3.fromRGB(20, 20, 28)},
+    {name = "Dark Red", bg = Color3.fromRGB(22, 10, 10), side = Color3.fromRGB(18, 8, 8), prof = Color3.fromRGB(28, 14, 14)},
+    {name = "Dark Green", bg = Color3.fromRGB(10, 22, 10), side = Color3.fromRGB(8, 18, 8), prof = Color3.fromRGB(14, 28, 14)},
+    {name = "Pitch Black", bg = Color3.fromRGB(5, 5, 5), side = Color3.fromRGB(0, 0, 0), prof = Color3.fromRGB(10, 10, 10)},
+}
+local currentMenuColorIdx = 1
+settingsPage:AddButton("Cycle UI Color: Dark Blue", function(btnRef)
+    currentMenuColorIdx = currentMenuColorIdx % #menuColors + 1
+    local theme = menuColors[currentMenuColorIdx]
+    btnRef.Text = "Cycle UI Color: " .. theme.name
+    
+    MainFrame.BackgroundColor3 = theme.bg
+    Sidebar.BackgroundColor3 = theme.side
+    ProfileBox.BackgroundColor3 = theme.prof
+end)
+
+-- 4. Streamer Mode
+getgenv().streamerModeActive = false
+settingsPage:AddToggle("Streamer Mode (Hide Info)", false, function(state)
+    getgenv().streamerModeActive = state
+    
+    local ovGui = CoreGui:FindFirstChild("ThoriumOverlayGui") or (LocalPlayer:FindFirstChild("PlayerGui") and LocalPlayer.PlayerGui:FindFirstChild("ThoriumOverlayGui"))
+    if ovGui then
+        local ovList = ovGui:FindFirstChild("OverlayList")
+        if ovList then
+            local wmObj = ovList:FindFirstChild("Watermark")
+            local nickObj = ovList:FindFirstChild("Nickname")
+            local avObj = ovList:FindFirstChild("Avatar")
+            
+            if wmObj then wmObj.Visible = not state and (getgenv().wmState or false) end
+            if nickObj then nickObj.Visible = not state and (getgenv().nickState or false) end
+            if avObj then avObj.Visible = not state and (getgenv().avatarState or false) end
+        end
+    end
+    
+    ProfileIcon.Visible = not state
+    NicknameLabel.Text = state and "Hidden" or LocalPlayer.Name
+    
+    pcall(function()
+        game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.Chat, not state)
+    end)
+end)
+
+-- 5. Profiles / Presets
+settingsPage:AddButton("Save Settings (Preset)", function(btnRef)
+    local data = {
+        uiScale = MainFrameScale.Scale,
+        skyboxEnabled = (Lighting:FindFirstChild("ThoriumSky") ~= nil),
+        wmState = getgenv().wmState,
+        fpsState = getgenv().fpsState,
+        pingState = getgenv().pingState,
+        nickState = getgenv().nickState,
+        avatarState = getgenv().avatarState,
+        timeState = getgenv().timeState,
+        fontIdx = currentFontIdx,
+        colorIdx = currentMenuColorIdx
+    }
+    if writefile then
+        pcall(function()
+            writefile("Thorium_Settings.json", HttpService:JSONEncode(data))
+        end)
+        btnRef.Text = "Settings Saved!"
+        task.wait(1.5)
+        btnRef.Text = "Save Settings (Preset)"
+    else
+        btnRef.Text = "Executor Not Supported!"
+        task.wait(1.5)
+        btnRef.Text = "Save Settings (Preset)"
+    end
+end)
+
+settingsPage:AddButton("Load Settings (Preset)", function(btnRef)
+    if readfile and isfile and isfile("Thorium_Settings.json") then
+        local succ, res = pcall(function() return HttpService:JSONDecode(readfile("Thorium_Settings.json")) end)
+        if succ and res then
+            if res.uiScale then MainFrameScale.Scale = res.uiScale end
+            
+            if res.skyboxEnabled then
+                if not Lighting:FindFirstChild("ThoriumSky") then
+                    local cs = Instance.new("Sky")
+                    cs.Name = "ThoriumSky"
+                    cs.SkyboxBk = "rbxassetid://159454299"
+                    cs.SkyboxDn = "rbxassetid://159454296"
+                    cs.SkyboxFt = "rbxassetid://159454293"
+                    cs.SkyboxLf = "rbxassetid://159454286"
+                    cs.SkyboxRt = "rbxassetid://159454300"
+                    cs.SkyboxUp = "rbxassetid://159454288"
+                    cs.Parent = Lighting
+                end
+            end
+            
+            if res.fontIdx then
+                currentFontIdx = res.fontIdx
+                local selectedFont = uiFonts[currentFontIdx]
+                for _, obj in ipairs(ScreenGui:GetDescendants()) do
+                    if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
+                        pcall(function() obj.Font = selectedFont end)
+                    end
+                end
+                local ovGui = CoreGui:FindFirstChild("ThoriumOverlayGui") or (LocalPlayer:FindFirstChild("PlayerGui") and LocalPlayer.PlayerGui:FindFirstChild("ThoriumOverlayGui"))
+                if ovGui then
+                    for _, obj in ipairs(ovGui:GetDescendants()) do
+                        if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
+                            pcall(function() obj.Font = selectedFont end)
+                        end
+                    end
+                end
+            end
+            
+            if res.colorIdx then
+                currentMenuColorIdx = res.colorIdx
+                local theme = menuColors[currentMenuColorIdx]
+                MainFrame.BackgroundColor3 = theme.bg
+                Sidebar.BackgroundColor3 = theme.side
+                ProfileBox.BackgroundColor3 = theme.prof
+            end
+
+            -- Overlay variables sync 
+            if res.wmState ~= nil then getgenv().wmState = res.wmState end
+            if res.fpsState ~= nil then getgenv().fpsState = res.fpsState end
+            if res.pingState ~= nil then getgenv().pingState = res.pingState end
+            if res.nickState ~= nil then getgenv().nickState = res.nickState end
+            if res.avatarState ~= nil then getgenv().avatarState = res.avatarState end
+            if res.timeState ~= nil then getgenv().timeState = res.timeState end
+
+            -- Visual apply for overlays
+            local ovGui = CoreGui:FindFirstChild("ThoriumOverlayGui") or (LocalPlayer:FindFirstChild("PlayerGui") and LocalPlayer.PlayerGui:FindFirstChild("ThoriumOverlayGui"))
+            if ovGui then
+                local ovList = ovGui:FindFirstChild("OverlayList")
+                if ovList then
+                    local sMode = getgenv().streamerModeActive
+                    if ovList:FindFirstChild("Watermark") then ovList.Watermark.Visible = not sMode and (res.wmState or false) end
+                    if ovList:FindFirstChild("FPS") then ovList.FPS.Visible = (res.fpsState or false) end
+                    if ovList:FindFirstChild("Ping") then ovList.Ping.Visible = (res.pingState or false) end
+                    if ovList:FindFirstChild("Nickname") then ovList.Nickname.Visible = not sMode and (res.nickState or false) end
+                    if ovList:FindFirstChild("Avatar") then ovList.Avatar.Visible = not sMode and (res.avatarState or false) end
+                    if ovList:FindFirstChild("Time") then ovList.Time.Visible = (res.timeState or false) end
+                end
+            end
+
+            btnRef.Text = "Settings Loaded!"
+        else
+            btnRef.Text = "Error Loading!"
+        end
+    else
+        btnRef.Text = "No Save Found!"
+    end
+    task.wait(1.5)
+    btnRef.Text = "Load Settings (Preset)"
+end)
 
 -- ==========================================
 -- OTHER PAGE (Оверлеи и Информация)
@@ -2220,9 +2432,40 @@ local overlayConn = RunService.RenderStepped:Connect(function(dt)
 end)
 table.insert(activeCleanups, function() if overlayConn then overlayConn:Disconnect() end end)
 
-otherPage:AddToggle("Show watermark", false, function(state) wmOverlay.Visible = state end)
-otherPage:AddToggle("Show FPS", false, function(state) fpsOverlay.Visible = state end)
-otherPage:AddToggle("Show Ping", false, function(state) pingOverlay.Visible = state end)
-otherPage:AddToggle("Show nickname", false, function(state) nickOverlay.Visible = state end)
-otherPage:AddToggle("Show Avatar", false, function(state) avatarOverlay.Visible = state end)
-otherPage:AddToggle("Show time", false, function(state) timeOverlay.Visible = state end)
+-- Инициализация глобальных состояний
+getgenv().wmState = false
+getgenv().fpsState = false
+getgenv().pingState = false
+getgenv().nickState = false
+getgenv().avatarState = false
+getgenv().timeState = false
+
+otherPage:AddToggle("Show watermark", false, function(state) 
+    getgenv().wmState = state
+    wmOverlay.Visible = not getgenv().streamerModeActive and state 
+end)
+
+otherPage:AddToggle("Show FPS", false, function(state) 
+    getgenv().fpsState = state
+    fpsOverlay.Visible = state 
+end)
+
+otherPage:AddToggle("Show Ping", false, function(state) 
+    getgenv().pingState = state
+    pingOverlay.Visible = state 
+end)
+
+otherPage:AddToggle("Show nickname", false, function(state) 
+    getgenv().nickState = state
+    nickOverlay.Visible = not getgenv().streamerModeActive and state 
+end)
+
+otherPage:AddToggle("Show Avatar", false, function(state) 
+    getgenv().avatarState = state
+    avatarOverlay.Visible = not getgenv().streamerModeActive and state 
+end)
+
+otherPage:AddToggle("Show time", false, function(state) 
+    getgenv().timeState = state
+    timeOverlay.Visible = state 
+end)
