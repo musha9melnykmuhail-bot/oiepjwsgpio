@@ -10,7 +10,6 @@ local LocalPlayer = Players.LocalPlayer
 local oldGui = CoreGui:FindFirstChild("Thoriumv2Gui") or (LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui") and LocalPlayer.PlayerGui:FindFirstChild("Thoriumv2Gui"))
 if oldGui then oldGui:Destroy() end
 
--- Удаление старого размытия если есть
 local oldBlur = Lighting:FindFirstChild("ThoriumBlurEffect")
 if oldBlur then oldBlur:Destroy() end
 
@@ -27,12 +26,11 @@ getgenv().ThoriumLib_Cleanup = function()
 end
 
 getgenv().ThoriumLib_Loaded = true
-getgenv().Thorium_MasterSwitch = true -- Главный выключатель
+getgenv().Thorium_MasterSwitch = true
 
--- Place ID (Murder Mystery 2: 142823291)
 local TARGET_PLACE_ID = 142823291
 if game.PlaceId ~= TARGET_PLACE_ID then
-    warn("[Thorium v2] Wrong Place ID (" .. tostring(game.PlaceId) .. ")! Expected: " .. tostring(TARGET_PLACE_ID))
+    warn("[Thorium Lib v2] Wrong Place ID (" .. tostring(game.PlaceId) .. ")! Expected: " .. tostring(TARGET_PLACE_ID))
     return
 end
 
@@ -42,7 +40,9 @@ local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
--- Эффект размытия заднего фона (Blur 50%)
+local ACCENT_COLOR = Color3.fromRGB(0, 170, 255)
+local SMOOTH_TWEEN = TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+
 local UIBlur = Instance.new("BlurEffect")
 UIBlur.Name = "ThoriumBlurEffect"
 UIBlur.Size = 24
@@ -63,12 +63,12 @@ if not success then ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
 
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 800, 0, 520)
-MainFrame.Position = UDim2.new(0.5, -400, 0.5, -260)
+MainFrame.Size = UDim2.new(0, 580, 0, 380) -- Уменьшенный, аккуратный размер[cite: 2]
+MainFrame.Position = UDim2.new(0.5, -290, 0.5, -190)
 MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 16)
 MainFrame.BackgroundTransparency = 0.15
-MainFrame.BorderSizePixel = 1
-MainFrame.BorderColor3 = Color3.fromRGB(40, 40, 50)
+MainFrame.BorderSizePixel = 0
+MainFrame.ClipsDescendants = true
 MainFrame.Active = true
 MainFrame.Visible = true
 MainFrame.Parent = ScreenGui
@@ -77,7 +77,10 @@ local MainFrameScale = Instance.new("UIScale")
 MainFrameScale.Scale = 1.0
 MainFrameScale.Parent = MainFrame
 
--- Мобильная кнопка переключения видимости
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 12) -- Мягкие углы
+MainCorner.Parent = MainFrame
+
 local MobileToggleBtn = Instance.new("TextButton")
 MobileToggleBtn.Name = "MobileToggleBtn"
 MobileToggleBtn.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -86,7 +89,7 @@ MobileToggleBtn.Position = UDim2.new(0.05, 25, 0.2, 25)
 MobileToggleBtn.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
 MobileToggleBtn.BackgroundTransparency = 0.2
 MobileToggleBtn.Text = "v2"
-MobileToggleBtn.TextColor3 = Color3.fromRGB(0, 170, 255)
+MobileToggleBtn.TextColor3 = ACCENT_COLOR
 MobileToggleBtn.Font = Enum.Font.GothamBold
 MobileToggleBtn.TextSize = 18
 MobileToggleBtn.ZIndex = 100
@@ -97,11 +100,10 @@ MobileCorner.CornerRadius = UDim.new(0, 25)
 MobileCorner.Parent = MobileToggleBtn
 
 local MobileStroke = Instance.new("UIStroke")
-MobileStroke.Color = Color3.fromRGB(0, 170, 255)
+MobileStroke.Color = ACCENT_COLOR
 MobileStroke.Thickness = 1.5
 MobileStroke.Parent = MobileToggleBtn
 
--- Перетаскивание мобильной кнопки
 local mDragging, mDragStart, mStartPos
 MobileToggleBtn.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -125,54 +127,89 @@ end)
 MobileToggleBtn.MouseButton1Click:Connect(function()
     MainFrame.Visible = not MainFrame.Visible
     UIBlur.Enabled = MainFrame.Visible
-    
-    -- Плавная анимация при клике
     TweenService:Create(MobileToggleBtn, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 42, 0, 42)}):Play()
     task.wait(0.1)
     TweenService:Create(MobileToggleBtn, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 50, 0, 50)}):Play()
 end)
 
--- Верхняя панель (Шторка)
 local TopNotch = Instance.new("Frame")
 TopNotch.Name = "TopNotch"
 TopNotch.Size = UDim2.new(1, 0, 0, 45)
 TopNotch.BackgroundColor3 = Color3.fromRGB(8, 8, 12)
 TopNotch.BackgroundTransparency = 0.2
-TopNotch.BorderSizePixel = 1
-TopNotch.BorderColor3 = Color3.fromRGB(30, 30, 40)
+TopNotch.BorderSizePixel = 0
 TopNotch.ZIndex = 5
 TopNotch.Parent = MainFrame
+
+local TopNotchLine = Instance.new("Frame")
+TopNotchLine.Size = UDim2.new(1, 0, 0, 1)
+TopNotchLine.Position = UDim2.new(0, 0, 1, 0)
+TopNotchLine.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+TopNotchLine.BorderSizePixel = 0
+TopNotchLine.Parent = TopNotch
 
 local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(0, 180, 1, 0)
 Title.Position = UDim2.new(0, 15, 0, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "⚡ Thorium v2"
+Title.Text = "⚡ Thorium Lib v2"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.TextSize = 16
+Title.TextSize = 14
 Title.Font = Enum.Font.GothamBold
 Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.ZIndex = 6
 Title.Parent = TopNotch
 
--- Master Switch Styling
+-- ==========================================
+-- WATERMARK
+-- ==========================================
+local Watermark = Instance.new("Frame")
+Watermark.Name = "Watermark"
+Watermark.Size = UDim2.new(0, 320, 0, 35)
+Watermark.Position = UDim2.new(0.5, -160, 1, 50) -- Изначально спрятан внизу
+Watermark.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+Watermark.BorderSizePixel = 0
+Watermark.ZIndex = 100
+Watermark.Parent = ScreenGui
+
+local WMCorner = Instance.new("UICorner")
+WMCorner.CornerRadius = UDim.new(0, 8)
+WMCorner.Parent = Watermark
+
+local WMStroke = Instance.new("UIStroke")
+WMStroke.Color = ACCENT_COLOR
+WMStroke.Thickness = 1
+WMStroke.Parent = Watermark
+
+local WMLabel = Instance.new("TextLabel")
+WMLabel.Size = UDim2.new(1, 0, 1, 0)
+WMLabel.BackgroundTransparency = 1
+WMLabel.Text = "✨ THORIUM LIB V2 | PRIVATE BUILD | TESTER"
+WMLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+WMLabel.Font = Enum.Font.GothamBold
+WMLabel.TextSize = 11
+WMLabel.Parent = Watermark
+
+-- ==========================================
+-- MASTER SWITCH & SEARCH
+-- ==========================================
 local MSContainer = Instance.new("Frame")
-MSContainer.Size = UDim2.new(0, 150, 0, 28)
-MSContainer.Position = UDim2.new(0, 200, 0.5, -14)
+MSContainer.Size = UDim2.new(0, 140, 0, 28)
+MSContainer.Position = UDim2.new(0, 160, 0.5, -14)
 MSContainer.BackgroundColor3 = Color3.fromRGB(18, 18, 25)
 MSContainer.BackgroundTransparency = 0.3
 MSContainer.ZIndex = 6
 MSContainer.Parent = TopNotch
 
 local MSCorner = Instance.new("UICorner")
-MSCorner.CornerRadius = UDim.new(0, 6)
+MSCorner.CornerRadius = UDim.new(0, 8)
 MSCorner.Parent = MSContainer
 
 local MSLabel = Instance.new("TextLabel")
 MSLabel.Size = UDim2.new(1, -40, 1, 0)
 MSLabel.Position = UDim2.new(0, 8, 0, 0)
 MSLabel.BackgroundTransparency = 1
-MSLabel.Text = "Master Switch"
+MSLabel.Text = "👑 Master Switch"
 MSLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
 MSLabel.Font = Enum.Font.GothamMedium
 MSLabel.TextSize = 11
@@ -183,7 +220,7 @@ MSLabel.Parent = MSContainer
 local MSBtn = Instance.new("TextButton")
 MSBtn.Size = UDim2.new(0, 30, 0, 16)
 MSBtn.Position = UDim2.new(1, -34, 0.5, -8)
-MSBtn.BackgroundColor3 = Color3.fromRGB(0, 255, 120)
+MSBtn.BackgroundColor3 = ACCENT_COLOR -- Единый цвет!
 MSBtn.Text = ""
 MSBtn.ZIndex = 6
 MSBtn.Parent = MSContainer
@@ -206,11 +243,10 @@ MSCircleCorner.Parent = MSCircle
 MSBtn.MouseButton1Click:Connect(function()
     getgenv().Thorium_MasterSwitch = not getgenv().Thorium_MasterSwitch
     local enabled = getgenv().Thorium_MasterSwitch
-    TweenService:Create(MSBtn, TweenInfo.new(0.2), {BackgroundColor3 = enabled and Color3.fromRGB(0, 255, 120) or Color3.fromRGB(255, 60, 60)}):Play()
-    TweenService:Create(MSCircle, TweenInfo.new(0.2), {Position = enabled and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)}):Play()
+    TweenService:Create(MSBtn, SMOOTH_TWEEN, {BackgroundColor3 = enabled and ACCENT_COLOR or Color3.fromRGB(35, 35, 45)}):Play()
+    TweenService:Create(MSCircle, SMOOTH_TWEEN, {Position = enabled and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)}):Play()
 end)
 
--- Поиск (с выдвижением влево)
 local SearchContainer = Instance.new("Frame")
 SearchContainer.AnchorPoint = Vector2.new(1, 0.5)
 SearchContainer.Size = UDim2.new(0, 30, 0, 30)
@@ -232,6 +268,7 @@ SearchBox.TextSize = 12
 SearchBox.Visible = false
 SearchBox.ZIndex = 6
 SearchBox.Parent = SearchContainer
+Instance.new("UICorner", SearchBox).CornerRadius = UDim.new(0, 6)
 
 local SearchIconBtn = Instance.new("TextButton")
 SearchIconBtn.AnchorPoint = Vector2.new(1, 0)
@@ -246,7 +283,7 @@ local SearchIconImg = Instance.new("ImageLabel")
 SearchIconImg.Size = UDim2.new(0, 14, 0, 14)
 SearchIconImg.Position = UDim2.new(0.5, -7, 0.5, -7)
 SearchIconImg.BackgroundTransparency = 1
-SearchIconImg.Image = "rbxassetid://11419713964" -- Иконка поиска (лупа)
+SearchIconImg.Image = "rbxassetid://11419713964"
 SearchIconImg.ImageColor3 = Color3.fromRGB(255, 255, 255)
 SearchIconImg.ZIndex = 6
 SearchIconImg.Parent = SearchIconBtn
@@ -256,52 +293,121 @@ SearchIconBtn.MouseButton1Click:Connect(function()
     searchOpen = not searchOpen
     if searchOpen then
         SearchBox.Visible = true
-        SearchContainer:TweenSize(UDim2.new(0, 180, 0, 30), "Out", "Quad", 0.3, true)
+        SearchContainer:TweenSize(UDim2.new(0, 180, 0, 30), "Out", "Quart", 0.3, true)
     else
         SearchBox.Text = ""
-        SearchContainer:TweenSize(UDim2.new(0, 30, 0, 30), "Out", "Quad", 0.3, true, function() SearchBox.Visible = false end)
+        SearchContainer:TweenSize(UDim2.new(0, 30, 0, 30), "Out", "Quart", 0.3, true, function() SearchBox.Visible = false end)
     end
 end)
 
--- Боковое меню (Sidebar)
+-- ==========================================
+-- SIDEBAR & PROFILE
+-- ==========================================
 local Sidebar = Instance.new("ScrollingFrame")
 Sidebar.Name = "Sidebar"
-Sidebar.Size = UDim2.new(0, 180, 1, -45)
+Sidebar.Size = UDim2.new(0, 150, 1, -100) -- Место под Profile снизу
 Sidebar.Position = UDim2.new(0, 0, 0, 45)
 Sidebar.BackgroundColor3 = Color3.fromRGB(8, 8, 12)
 Sidebar.BackgroundTransparency = 0.25
-Sidebar.BorderSizePixel = 1
-Sidebar.BorderColor3 = Color3.fromRGB(30, 30, 40)
-Sidebar.ScrollBarThickness = 2
-Sidebar.ScrollBarImageColor3 = Color3.fromRGB(60, 60, 80)
+Sidebar.BorderSizePixel = 0
+Sidebar.ScrollBarThickness = 0
 Sidebar.Parent = MainFrame
 
 local SidebarLayout = Instance.new("UIListLayout")
 SidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
-SidebarLayout.Padding = UDim.new(0, 2)
+SidebarLayout.Padding = UDim.new(0, 4)
 SidebarLayout.Parent = Sidebar
 
 SidebarLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
     Sidebar.CanvasSize = UDim2.new(0, 0, 0, SidebarLayout.AbsoluteContentSize.Y + 10)
 end)
 
+-- Профиль
+local ProfileBtn = Instance.new("TextButton")
+ProfileBtn.Size = UDim2.new(0, 150, 0, 55)
+ProfileBtn.Position = UDim2.new(0, 0, 1, -55)
+ProfileBtn.BackgroundColor3 = Color3.fromRGB(12, 12, 18)
+ProfileBtn.BorderSizePixel = 0
+ProfileBtn.Text = ""
+ProfileBtn.AutoButtonColor = false
+ProfileBtn.Parent = MainFrame
+
+local ProfileLine = Instance.new("Frame")
+ProfileLine.Size = UDim2.new(1, 0, 0, 1)
+ProfileLine.Position = UDim2.new(0, 0, 0, 0)
+ProfileLine.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+ProfileLine.BorderSizePixel = 0
+ProfileLine.Parent = ProfileBtn
+
+local Avatar = Instance.new("TextLabel")
+Avatar.Size = UDim2.new(0, 30, 0, 30)
+Avatar.Position = UDim2.new(0, 10, 0.5, -15)
+Avatar.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+Avatar.Text = "👨‍💻"
+Avatar.TextSize = 16
+Avatar.Parent = ProfileBtn
+Instance.new("UICorner", Avatar).CornerRadius = UDim.new(1, 0)
+
+local Nickname = Instance.new("TextLabel")
+Nickname.Size = UDim2.new(0, 100, 0, 15)
+Nickname.Position = UDim2.new(0, 48, 0, 12)
+Nickname.BackgroundTransparency = 1
+Nickname.Text = "Tester"
+Nickname.TextColor3 = Color3.fromRGB(255, 255, 255)
+Nickname.Font = Enum.Font.GothamBold
+Nickname.TextSize = 12
+Nickname.TextXAlignment = Enum.TextXAlignment.Left
+Nickname.Parent = ProfileBtn
+
+local Role = Instance.new("TextLabel")
+Role.Size = UDim2.new(0, 100, 0, 15)
+Role.Position = UDim2.new(0, 48, 0, 27)
+Role.BackgroundTransparency = 1
+Role.Text = "Developer"
+Role.TextColor3 = ACCENT_COLOR
+Role.Font = Enum.Font.GothamMedium
+Role.TextSize = 10
+Role.TextXAlignment = Enum.TextXAlignment.Left
+Role.Parent = ProfileBtn
+
+local wmOpen = false
+ProfileBtn.MouseButton1Click:Connect(function()
+    wmOpen = not wmOpen
+    local targetPos = wmOpen and UDim2.new(0.5, -160, 1, -45) or UDim2.new(0.5, -160, 1, 50)
+    TweenService:Create(Watermark, SMOOTH_TWEEN, {Position = targetPos}):Play()
+end)
+
+ProfileBtn.MouseEnter:Connect(function()
+    TweenService:Create(ProfileBtn, SMOOTH_TWEEN, {BackgroundColor3 = Color3.fromRGB(18, 18, 26)}):Play()
+end)
+ProfileBtn.MouseLeave:Connect(function()
+    TweenService:Create(ProfileBtn, SMOOTH_TWEEN, {BackgroundColor3 = Color3.fromRGB(12, 12, 18)}):Play()
+end)
+
 local ContentArea = Instance.new("Frame")
 ContentArea.Name = "ContentArea"
-ContentArea.Size = UDim2.new(1, -180, 1, -45)
-ContentArea.Position = UDim2.new(0, 180, 0, 45)
+ContentArea.Size = UDim2.new(1, -150, 1, -45)
+ContentArea.Position = UDim2.new(0, 150, 0, 45)
 ContentArea.BackgroundTransparency = 1
 ContentArea.Parent = MainFrame
 
--- Dragging ПК
+local ContentLine = Instance.new("Frame")
+ContentLine.Size = UDim2.new(0, 1, 1, 0)
+ContentLine.Position = UDim2.new(0, 0, 0, 0)
+ContentLine.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+ContentLine.BorderSizePixel = 0
+ContentLine.Parent = ContentArea
+
+-- Dragging 
 local dragging, dragInput, dragStart, startPos
-MainFrame.InputBegan:Connect(function(input)
+TopNotch.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = true
         dragStart = input.Position
         startPos = MainFrame.Position
     end
 end)
-MainFrame.InputEnded:Connect(function(input)
+TopNotch.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = false
     end
@@ -313,7 +419,6 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- Горячая клавиша
 local toggleKey = Enum.KeyCode.RightShift
 local keyInputConn = UserInputService.InputBegan:Connect(function(input, gp)
     if not gp and input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == toggleKey then
@@ -324,9 +429,8 @@ end)
 table.insert(activeCleanups, function() keyInputConn:Disconnect() end)
 
 -- ==========================================
--- TAB ENGINE WITH ACCENT INDICATORS & ICONS
+-- TAB ENGINE WITH SMOOTH TWEENS
 -- ==========================================
-
 local AllUIElements = {}
 local TabsList = {}
 local activePageRef = nil
@@ -334,18 +438,18 @@ local activePageRef = nil
 local function HideAllPages()
     for _, tabData in ipairs(TabsList) do
         if tabData.Type == "MainWithSub" then
-            tabData.Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-            if tabData.Btn:FindFirstChild("Icon") then tabData.Btn.Icon.ImageColor3 = Color3.fromRGB(255, 255, 255) end
+            TweenService:Create(tabData.Btn, SMOOTH_TWEEN, {TextColor3 = Color3.fromRGB(150, 150, 160)}):Play()
+            if tabData.Btn:FindFirstChild("Icon") then TweenService:Create(tabData.Btn.Icon, SMOOTH_TWEEN, {ImageColor3 = Color3.fromRGB(150, 150, 160)}):Play() end
             for _, sub in ipairs(tabData.SubTabs) do
                 sub.Page.Visible = false
-                sub.Btn.TextColor3 = Color3.fromRGB(150, 150, 160)
-                if sub.Btn:FindFirstChild("Icon") then sub.Btn.Icon.ImageColor3 = Color3.fromRGB(150, 150, 160) end
+                TweenService:Create(sub.Btn, SMOOTH_TWEEN, {TextColor3 = Color3.fromRGB(100, 100, 110)}):Play()
+                if sub.Btn:FindFirstChild("Icon") then TweenService:Create(sub.Btn.Icon, SMOOTH_TWEEN, {ImageColor3 = Color3.fromRGB(100, 100, 110)}):Play() end
                 if sub.Indicator then sub.Indicator.Visible = false end
             end
         elseif tabData.Type == "Direct" then
             tabData.Page.Visible = false
-            tabData.Btn.TextColor3 = Color3.fromRGB(150, 150, 160)
-            if tabData.Btn:FindFirstChild("Icon") then tabData.Btn.Icon.ImageColor3 = Color3.fromRGB(150, 150, 160) end
+            TweenService:Create(tabData.Btn, SMOOTH_TWEEN, {TextColor3 = Color3.fromRGB(150, 150, 160)}):Play()
+            if tabData.Btn:FindFirstChild("Icon") then TweenService:Create(tabData.Btn.Icon, SMOOTH_TWEEN, {ImageColor3 = Color3.fromRGB(150, 150, 160)}):Play() end
             if tabData.Indicator then tabData.Indicator.Visible = false end
         end
     end
@@ -363,33 +467,27 @@ local function CreateContentPage(name)
     leftCol.Size = UDim2.new(0.5, -15, 1, -20)
     leftCol.Position = UDim2.new(0, 10, 0, 10)
     leftCol.BackgroundTransparency = 1
-    leftCol.ScrollBarThickness = 2
-    leftCol.ScrollBarImageColor3 = Color3.fromRGB(60, 60, 80)
+    leftCol.ScrollBarThickness = 0
     leftCol.BorderSizePixel = 0
     leftCol.Parent = page
     local leftLayout = Instance.new("UIListLayout")
     leftLayout.SortOrder = Enum.SortOrder.LayoutOrder
     leftLayout.Padding = UDim.new(0, 8)
     leftLayout.Parent = leftCol
-    leftLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        leftCol.CanvasSize = UDim2.new(0, 0, 0, leftLayout.AbsoluteContentSize.Y + 10)
-    end)
+    leftLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function() leftCol.CanvasSize = UDim2.new(0, 0, 0, leftLayout.AbsoluteContentSize.Y + 10) end)
 
     local rightCol = Instance.new("ScrollingFrame")
     rightCol.Size = UDim2.new(0.5, -15, 1, -20)
     rightCol.Position = UDim2.new(0.5, 5, 0, 10)
     rightCol.BackgroundTransparency = 1
-    rightCol.ScrollBarThickness = 2
-    rightCol.ScrollBarImageColor3 = Color3.fromRGB(60, 60, 80)
+    rightCol.ScrollBarThickness = 0
     rightCol.BorderSizePixel = 0
     rightCol.Parent = page
     local rightLayout = Instance.new("UIListLayout")
     rightLayout.SortOrder = Enum.SortOrder.LayoutOrder
     rightLayout.Padding = UDim.new(0, 8)
     rightLayout.Parent = rightCol
-    rightLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        rightCol.CanvasSize = UDim2.new(0, 0, 0, rightLayout.AbsoluteContentSize.Y + 10)
-    end)
+    rightLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function() rightCol.CanvasSize = UDim2.new(0, 0, 0, rightLayout.AbsoluteContentSize.Y + 10) end)
 
     return {Page = page, Left = leftCol, Right = rightCol, ItemCount = 0}
 end
@@ -407,11 +505,10 @@ local function BuildTabObj(pageData)
 
         local frame = Instance.new("Frame")
         frame.Size = UDim2.new(1, -10, 0, 36)
-        frame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
-        frame.BackgroundTransparency = 0.2
-        frame.BorderSizePixel = 1
-        frame.BorderColor3 = Color3.fromRGB(35, 35, 45)
+        frame.BackgroundColor3 = Color3.fromRGB(18, 18, 25)
+        frame.BorderSizePixel = 0
         frame.Parent = target
+        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8) -- Мягкие углы элементам
 
         local lbl = Instance.new("TextLabel")
         lbl.Size = UDim2.new(1, -50, 1, 0)
@@ -420,35 +517,34 @@ local function BuildTabObj(pageData)
         lbl.Text = text
         lbl.TextColor3 = Color3.fromRGB(220, 220, 220)
         lbl.Font = Enum.Font.GothamMedium
-        lbl.TextSize = 12
+        lbl.TextSize = 11
         lbl.TextXAlignment = Enum.TextXAlignment.Left
         lbl.Parent = frame
 
         local btn = Instance.new("TextButton")
         btn.Size = UDim2.new(0, 30, 0, 16)
         btn.Position = UDim2.new(1, -40, 0.5, -8)
-        btn.BackgroundColor3 = state and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(35, 35, 45)
+        btn.BackgroundColor3 = state and ACCENT_COLOR or Color3.fromRGB(35, 35, 45)
         btn.Text = ""
         btn.Parent = frame
-        local corner = Instance.new("UICorner")
-        corner.CornerRadius = UDim.new(1, 0)
-        corner.Parent = btn
+        Instance.new("UICorner", btn).CornerRadius = UDim.new(1, 0)
 
         local circle = Instance.new("Frame")
         circle.Size = UDim2.new(0, 12, 0, 12)
         circle.Position = state and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)
         circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         circle.Parent = btn
-        local cCorner = Instance.new("UICorner")
-        cCorner.CornerRadius = UDim.new(1, 0)
-        cCorner.Parent = circle
+        Instance.new("UICorner", circle).CornerRadius = UDim.new(1, 0)
 
         btn.MouseButton1Click:Connect(function()
             state = not state
-            TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = state and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(35, 35, 45)}):Play()
-            TweenService:Create(circle, TweenInfo.new(0.2), {Position = state and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)}):Play()
+            TweenService:Create(btn, SMOOTH_TWEEN, {BackgroundColor3 = state and ACCENT_COLOR or Color3.fromRGB(35, 35, 45)}):Play()
+            TweenService:Create(circle, SMOOTH_TWEEN, {Position = state and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)}):Play()
             task.spawn(callback, state)
         end)
+
+        frame.MouseEnter:Connect(function() TweenService:Create(frame, SMOOTH_TWEEN, {BackgroundColor3 = Color3.fromRGB(24, 24, 32)}):Play() end)
+        frame.MouseLeave:Connect(function() TweenService:Create(frame, SMOOTH_TWEEN, {BackgroundColor3 = Color3.fromRGB(18, 18, 25)}):Play() end)
 
         table.insert(AllUIElements, {Text = text, Frame = frame, PageObj = self})
     end
@@ -459,11 +555,10 @@ local function BuildTabObj(pageData)
 
         local frame = Instance.new("Frame")
         frame.Size = UDim2.new(1, -10, 0, 45)
-        frame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
-        frame.BackgroundTransparency = 0.2
-        frame.BorderSizePixel = 1
-        frame.BorderColor3 = Color3.fromRGB(35, 35, 45)
+        frame.BackgroundColor3 = Color3.fromRGB(18, 18, 25)
+        frame.BorderSizePixel = 0
         frame.Parent = target
+        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
 
         local lbl = Instance.new("TextLabel")
         lbl.Size = UDim2.new(0.7, 0, 0, 20)
@@ -472,7 +567,7 @@ local function BuildTabObj(pageData)
         lbl.Text = text
         lbl.TextColor3 = Color3.fromRGB(220, 220, 220)
         lbl.Font = Enum.Font.GothamMedium
-        lbl.TextSize = 12
+        lbl.TextSize = 11
         lbl.TextXAlignment = Enum.TextXAlignment.Left
         lbl.Parent = frame
 
@@ -481,9 +576,9 @@ local function BuildTabObj(pageData)
         valLbl.Position = UDim2.new(0.7, 0, 0, 5)
         valLbl.BackgroundTransparency = 1
         valLbl.Text = tostring(val)
-        valLbl.TextColor3 = Color3.fromRGB(0, 170, 255)
+        valLbl.TextColor3 = ACCENT_COLOR
         valLbl.Font = Enum.Font.GothamMedium
-        valLbl.TextSize = 12
+        valLbl.TextSize = 11
         valLbl.TextXAlignment = Enum.TextXAlignment.Right
         valLbl.Parent = frame
 
@@ -493,12 +588,14 @@ local function BuildTabObj(pageData)
         track.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
         track.BorderSizePixel = 0
         track.Parent = frame
+        Instance.new("UICorner", track).CornerRadius = UDim.new(1, 0)
 
         local fill = Instance.new("Frame")
         fill.Size = UDim2.new((val - min)/(max - min), 0, 1, 0)
-        fill.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+        fill.BackgroundColor3 = ACCENT_COLOR
         fill.BorderSizePixel = 0
         fill.Parent = track
+        Instance.new("UICorner", fill).CornerRadius = UDim.new(1, 0)
 
         local trigger = Instance.new("TextButton")
         trigger.Size = UDim2.new(1, 0, 1, 0)
@@ -507,23 +604,23 @@ local function BuildTabObj(pageData)
         trigger.Parent = frame
 
         local draggingSlider = false
+        local function update(input)
+            local posX = math.clamp((input.Position.X - track.AbsolutePosition.X) / track.AbsoluteSize.X, 0, 1)
+            val = math.floor(min + (max - min) * posX)
+            valLbl.Text = tostring(val)
+            TweenService:Create(fill, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(posX, 0, 1, 0)}):Play()
+            task.spawn(callback, val)
+        end
+
         trigger.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                 draggingSlider = true
-                local posX = math.clamp((input.Position.X - track.AbsolutePosition.X) / track.AbsoluteSize.X, 0, 1)
-                val = math.floor(min + (max - min) * posX)
-                valLbl.Text = tostring(val)
-                fill.Size = UDim2.new(posX, 0, 1, 0)
-                task.spawn(callback, val)
+                update(input)
             end
         end)
         UserInputService.InputChanged:Connect(function(input)
             if draggingSlider and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-                local posX = math.clamp((input.Position.X - track.AbsolutePosition.X) / track.AbsoluteSize.X, 0, 1)
-                val = math.floor(min + (max - min) * posX)
-                valLbl.Text = tostring(val)
-                fill.Size = UDim2.new(posX, 0, 1, 0)
-                task.spawn(callback, val)
+                update(input)
             end
         end)
         UserInputService.InputEnded:Connect(function(input)
@@ -531,6 +628,9 @@ local function BuildTabObj(pageData)
                 draggingSlider = false
             end
         end)
+
+        frame.MouseEnter:Connect(function() TweenService:Create(frame, SMOOTH_TWEEN, {BackgroundColor3 = Color3.fromRGB(24, 24, 32)}):Play() end)
+        frame.MouseLeave:Connect(function() TweenService:Create(frame, SMOOTH_TWEEN, {BackgroundColor3 = Color3.fromRGB(18, 18, 25)}):Play() end)
 
         table.insert(AllUIElements, {Text = text, Frame = frame, PageObj = self})
     end
@@ -540,11 +640,10 @@ local function BuildTabObj(pageData)
         
         local frame = Instance.new("Frame")
         frame.Size = UDim2.new(1, -10, 0, 34)
-        frame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
-        frame.BackgroundTransparency = 0.2
-        frame.BorderSizePixel = 1
-        frame.BorderColor3 = Color3.fromRGB(35, 35, 45)
+        frame.BackgroundColor3 = Color3.fromRGB(18, 18, 25)
+        frame.BorderSizePixel = 0
         frame.Parent = target
+        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
 
         local btn = Instance.new("TextButton")
         btn.Size = UDim2.new(1, 0, 1, 0)
@@ -552,15 +651,18 @@ local function BuildTabObj(pageData)
         btn.Text = text
         btn.TextColor3 = Color3.fromRGB(220, 220, 220)
         btn.Font = Enum.Font.GothamMedium
-        btn.TextSize = 12
+        btn.TextSize = 11
         btn.Parent = frame
 
         btn.MouseButton1Click:Connect(function()
-            TweenService:Create(frame, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(0, 170, 255)}):Play()
+            TweenService:Create(frame, TweenInfo.new(0.1), {BackgroundColor3 = ACCENT_COLOR}):Play()
             task.wait(0.1)
-            TweenService:Create(frame, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(15, 15, 22)}):Play()
+            TweenService:Create(frame, SMOOTH_TWEEN, {BackgroundColor3 = Color3.fromRGB(18, 18, 25)}):Play()
             task.spawn(callback, btn)
         end)
+
+        frame.MouseEnter:Connect(function() TweenService:Create(frame, SMOOTH_TWEEN, {BackgroundColor3 = Color3.fromRGB(24, 24, 32)}):Play() end)
+        frame.MouseLeave:Connect(function() TweenService:Create(frame, SMOOTH_TWEEN, {BackgroundColor3 = Color3.fromRGB(18, 18, 25)}):Play() end)
         
         table.insert(AllUIElements, {Text = text, Frame = frame, PageObj = self})
         return btn
@@ -586,12 +688,12 @@ local function AddMainTab(tabName, iconId, hasSubTabs)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, 0, 0, 38)
     btn.BackgroundColor3 = Color3.fromRGB(12, 12, 16)
-    btn.BackgroundTransparency = 0.3
+    btn.BackgroundTransparency = 1
     btn.BorderSizePixel = 0
     btn.Text = "        " .. tabName
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextColor3 = Color3.fromRGB(150, 150, 160)
     btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 13
+    btn.TextSize = 12
     btn.TextXAlignment = Enum.TextXAlignment.Left
     btn.Parent = Sidebar
     tabObj.Btn = btn
@@ -602,18 +704,19 @@ local function AddMainTab(tabName, iconId, hasSubTabs)
     iconImg.Position = UDim2.new(0, 12, 0.5, -8)
     iconImg.BackgroundTransparency = 1
     iconImg.Image = iconId
-    iconImg.ImageColor3 = Color3.fromRGB(255, 255, 255)
+    iconImg.ImageColor3 = Color3.fromRGB(150, 150, 160)
     iconImg.Parent = btn
 
     if not hasSubTabs then
         local indicator = Instance.new("Frame")
-        indicator.Size = UDim2.new(0, 3, 1, -8)
-        indicator.Position = UDim2.new(0, 2, 0, 4)
-        indicator.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+        indicator.Size = UDim2.new(0, 3, 1, -12)
+        indicator.Position = UDim2.new(0, 0, 0, 6)
+        indicator.BackgroundColor3 = ACCENT_COLOR
         indicator.BorderSizePixel = 0
         indicator.Visible = false
         indicator.Parent = btn
         tabObj.Indicator = indicator
+        Instance.new("UICorner", indicator).CornerRadius = UDim.new(1, 0)
 
         local pageData = CreateContentPage(tabName)
         tabObj.Page = pageData.Page
@@ -623,14 +726,14 @@ local function AddMainTab(tabName, iconId, hasSubTabs)
             HideAllPages()
             activePageRef = tabObj.PageObj
             tabObj.Page.Visible = true
-            btn.TextColor3 = Color3.fromRGB(0, 170, 255)
-            if btn:FindFirstChild("Icon") then btn.Icon.ImageColor3 = Color3.fromRGB(0, 170, 255) end
+            TweenService:Create(btn, SMOOTH_TWEEN, {TextColor3 = ACCENT_COLOR}):Play()
+            if btn:FindFirstChild("Icon") then TweenService:Create(btn.Icon, SMOOTH_TWEEN, {ImageColor3 = ACCENT_COLOR}):Play() end
             indicator.Visible = true
 
             for _, t in ipairs(TabsList) do
                 if t.Type == "MainWithSub" and t.Expanded then
                     t.Expanded = false
-                    TweenService:Create(t.SubContainer, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(1, 0, 0, 0)}):Play()
+                    TweenService:Create(t.SubContainer, SMOOTH_TWEEN, {Size = UDim2.new(1, 0, 0, 0)}):Play()
                 end
             end
         end)
@@ -652,20 +755,23 @@ local function AddMainTab(tabName, iconId, hasSubTabs)
             for _, t in ipairs(TabsList) do
                 if t ~= tabObj and t.Type == "MainWithSub" and t.Expanded then
                     t.Expanded = false
-                    TweenService:Create(t.SubContainer, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(1, 0, 0, 0)}):Play()
+                    TweenService:Create(t.SubContainer, SMOOTH_TWEEN, {Size = UDim2.new(1, 0, 0, 0)}):Play()
                 end
             end
             
             tabObj.Expanded = not tabObj.Expanded
             local targetHeight = tabObj.Expanded and (#tabObj.SubTabs * 30) or 0
-            TweenService:Create(subContainer, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(1, 0, 0, targetHeight)}):Play()
+            TweenService:Create(subContainer, SMOOTH_TWEEN, {Size = UDim2.new(1, 0, 0, targetHeight)}):Play()
             
             if tabObj.Expanded and #tabObj.SubTabs > 0 then
                 HideAllPages()
                 activePageRef = tabObj.SubTabs[1].PageObj
                 tabObj.SubTabs[1].Page.Visible = true
-                tabObj.SubTabs[1].Btn.TextColor3 = Color3.fromRGB(0, 170, 255)
-                if tabObj.SubTabs[1].Btn:FindFirstChild("Icon") then tabObj.SubTabs[1].Btn.Icon.ImageColor3 = Color3.fromRGB(0, 170, 255) end
+                TweenService:Create(tabObj.Btn, SMOOTH_TWEEN, {TextColor3 = ACCENT_COLOR}):Play()
+                if tabObj.Btn:FindFirstChild("Icon") then TweenService:Create(tabObj.Btn.Icon, SMOOTH_TWEEN, {ImageColor3 = ACCENT_COLOR}):Play() end
+                
+                TweenService:Create(tabObj.SubTabs[1].Btn, SMOOTH_TWEEN, {TextColor3 = ACCENT_COLOR}):Play()
+                if tabObj.SubTabs[1].Btn:FindFirstChild("Icon") then TweenService:Create(tabObj.SubTabs[1].Btn.Icon, SMOOTH_TWEEN, {ImageColor3 = ACCENT_COLOR}):Play() end
                 tabObj.SubTabs[1].Indicator.Visible = true
             end
         end)
@@ -679,10 +785,10 @@ local function AddSubTab(parentTab, subName, iconId)
     local subBtn = Instance.new("TextButton")
     subBtn.Size = UDim2.new(1, 0, 0, 30)
     subBtn.BackgroundColor3 = Color3.fromRGB(16, 16, 22)
-    subBtn.BackgroundTransparency = 0.4
+    subBtn.BackgroundTransparency = 1
     subBtn.BorderSizePixel = 0
     subBtn.Text = "            " .. subName
-    subBtn.TextColor3 = Color3.fromRGB(150, 150, 160)
+    subBtn.TextColor3 = Color3.fromRGB(100, 100, 110)
     subBtn.Font = Enum.Font.GothamMedium
     subBtn.TextSize = 11
     subBtn.TextXAlignment = Enum.TextXAlignment.Left
@@ -694,16 +800,17 @@ local function AddSubTab(parentTab, subName, iconId)
     iconImg.Position = UDim2.new(0, 24, 0.5, -7)
     iconImg.BackgroundTransparency = 1
     iconImg.Image = iconId
-    iconImg.ImageColor3 = Color3.fromRGB(150, 150, 160)
+    iconImg.ImageColor3 = Color3.fromRGB(100, 100, 110)
     iconImg.Parent = subBtn
 
     local indicator = Instance.new("Frame")
-    indicator.Size = UDim2.new(0, 3, 1, -6)
-    indicator.Position = UDim2.new(0, 10, 0, 3)
-    indicator.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+    indicator.Size = UDim2.new(0, 3, 1, -12)
+    indicator.Position = UDim2.new(0, 10, 0, 6)
+    indicator.BackgroundColor3 = ACCENT_COLOR
     indicator.BorderSizePixel = 0
     indicator.Visible = false
     indicator.Parent = subBtn
+    Instance.new("UICorner", indicator).CornerRadius = UDim.new(1, 0)
 
     local pageData = CreateContentPage(subName)
     local pageObj = BuildTabObj(pageData)
@@ -715,8 +822,12 @@ local function AddSubTab(parentTab, subName, iconId)
         HideAllPages()
         activePageRef = pageObj
         pageData.Page.Visible = true
-        subBtn.TextColor3 = Color3.fromRGB(0, 170, 255)
-        if subBtn:FindFirstChild("Icon") then subBtn.Icon.ImageColor3 = Color3.fromRGB(0, 170, 255) end
+        
+        TweenService:Create(parentTab.Btn, SMOOTH_TWEEN, {TextColor3 = ACCENT_COLOR}):Play()
+        if parentTab.Btn:FindFirstChild("Icon") then TweenService:Create(parentTab.Btn.Icon, SMOOTH_TWEEN, {ImageColor3 = ACCENT_COLOR}):Play() end
+        
+        TweenService:Create(subBtn, SMOOTH_TWEEN, {TextColor3 = ACCENT_COLOR}):Play()
+        if subBtn:FindFirstChild("Icon") then TweenService:Create(subBtn.Icon, SMOOTH_TWEEN, {ImageColor3 = ACCENT_COLOR}):Play() end
         indicator.Visible = true
     end)
 
@@ -724,7 +835,7 @@ local function AddSubTab(parentTab, subName, iconId)
 end
 
 -- ==========================================
--- TABS STRUCTURING (Обновленные иконки)
+-- TABS STRUCTURING (Стикеры добавлены прямо в названия функций)
 -- ==========================================
 
 local tabMain = AddMainTab("Main", "rbxassetid://11419711516", true)
@@ -741,17 +852,18 @@ local tabMovement = AddMainTab("Movement", "rbxassetid://11419712953", false)
 local tabMisc = AddMainTab("Miscellaneous", "rbxassetid://11419710323", false)
 local tabSetting = AddMainTab("Setting", "rbxassetid://11419713704", false)
 
--- Открытие первой вкладки при старте
 tabMain.Expanded = true
 tabMain.SubContainer.Size = UDim2.new(1, 0, 0, #tabMain.SubTabs * 30)
 pGeneral.Page.Visible = true
 activePageRef = pGeneral
-tabMain.SubTabs[1].Btn.TextColor3 = Color3.fromRGB(0, 170, 255)
-if tabMain.SubTabs[1].Btn:FindFirstChild("Icon") then tabMain.SubTabs[1].Btn.Icon.ImageColor3 = Color3.fromRGB(0, 170, 255) end
+tabMain.Btn.TextColor3 = ACCENT_COLOR
+if tabMain.Btn:FindFirstChild("Icon") then tabMain.Btn.Icon.ImageColor3 = ACCENT_COLOR end
+tabMain.SubTabs[1].Btn.TextColor3 = ACCENT_COLOR
+if tabMain.SubTabs[1].Btn:FindFirstChild("Icon") then tabMain.SubTabs[1].Btn.Icon.ImageColor3 = ACCENT_COLOR end
 tabMain.SubTabs[1].Indicator.Visible = true
 
 -- ==========================================
--- MM2 GAME LOGIC & FUNCTIONS
+-- MM2 GAME LOGIC & FUNCTIONS (Стикеры)
 -- ==========================================
 
 local function CheckMaster() return getgenv().Thorium_MasterSwitch end
@@ -780,7 +892,7 @@ end
 
 -- MAIN -> GENERAL
 local autoCoinLoop = nil
-pGeneral:AddToggle("Auto Farm Coins (Overhauled)", false, function(state)
+pGeneral:AddToggle("🪙 Auto Farm Coins", false, function(state)
     if state then
         autoCoinLoop = task.spawn(function()
             while true do
@@ -818,7 +930,7 @@ pGeneral:AddToggle("Auto Farm Coins (Overhauled)", false, function(state)
     end
 end)
 
-pGeneral:AddButton("Announce Roles in Chat", function()
+pGeneral:AddButton("📢 Announce Roles", function()
     if not CheckMaster() then return end
     local m, s = GetMurderer(), GetSheriff()
     local msg = "Murderer: " .. (m and m.Name or "Unknown") .. " | Sheriff: " .. (s and s.Name or "None/Dead")
@@ -826,7 +938,7 @@ pGeneral:AddButton("Announce Roles in Chat", function()
 end)
 
 local isSpectating = false
-pGeneral:AddToggle("Spectate Murderer", false, function(state)
+pGeneral:AddToggle("👀 Spectate Murderer", false, function(state)
     isSpectating = state
     if isSpectating then
         task.spawn(function()
@@ -845,7 +957,7 @@ pGeneral:AddToggle("Spectate Murderer", false, function(state)
 end)
 
 local autoDodgeLoop = nil
-pGeneral:AddToggle("Auto Dodge Murderer", false, function(state)
+pGeneral:AddToggle("🏃 Auto Dodge Murderer", false, function(state)
     if state then
         autoDodgeLoop = task.spawn(function()
             while true do
@@ -868,7 +980,7 @@ pGeneral:AddToggle("Auto Dodge Murderer", false, function(state)
     end
 end)
 
-pGeneral:AddButton("FPS Booster", function()
+pGeneral:AddButton("🚀 FPS Booster", function()
     if not CheckMaster() then return end
     for _, v in ipairs(Workspace:GetDescendants()) do
         if v:IsA("BasePart") then v.Material = Enum.Material.SmoothPlastic
@@ -880,7 +992,7 @@ end)
 
 -- MAIN -> MURDER
 local knifeAuraLoop = nil
-pMurder:AddToggle("Knife Kill Aura", false, function(state)
+pMurder:AddToggle("🔪 Knife Kill Aura", false, function(state)
     if state then
         knifeAuraLoop = task.spawn(function()
             while true do
@@ -904,7 +1016,7 @@ pMurder:AddToggle("Knife Kill Aura", false, function(state)
     end
 end)
 
-pMurder:AddButton("Kill All (Murderer)", function()
+pMurder:AddButton("💀 Kill All", function()
     if not CheckMaster() then return end
     local knife = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Knife") or (LocalPlayer:FindFirstChild("Backpack") and LocalPlayer.Backpack:FindFirstChild("Knife"))
     if knife then
@@ -917,7 +1029,7 @@ pMurder:AddButton("Kill All (Murderer)", function()
     end
 end)
 
-pMurder:AddSlider("Player Hitbox Size", 2, 20, 2, function(val)
+pMurder:AddSlider("🎯 Hitbox Size", 2, 20, 2, function(val)
     if not CheckMaster() then return end
     for _, plr in ipairs(Players:GetPlayers()) do
         if plr ~= LocalPlayer and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
@@ -947,10 +1059,10 @@ if getrawmetatable then
     end)
 end
 
-pSheriff:AddToggle("Sheriff Silent Aim", false, function(state) silentAimEnabled = state end)
+pSheriff:AddToggle("🎯 Silent Aim", false, function(state) silentAimEnabled = state end)
 
 local autoGunLoop = nil
-pSheriff:AddToggle("Auto Grab Dropped Gun", false, function(state)
+pSheriff:AddToggle("🔫 Auto Grab Dropped Gun", false, function(state)
     if state then
         autoGunLoop = task.spawn(function()
             while true do
@@ -971,7 +1083,7 @@ end)
 
 -- VISUALS -> ENEMY
 local roleHighlights = {}
-pEnemy:AddToggle("Role ESP (Murder/Sheriff)", false, function(state)
+pEnemy:AddToggle("🎭 Role ESP", false, function(state)
     if state then
         task.spawn(function()
             while state do
@@ -980,7 +1092,7 @@ pEnemy:AddToggle("Role ESP (Murder/Sheriff)", false, function(state)
                         if plr ~= LocalPlayer and plr.Character and not plr.Character:FindFirstChild("MM2RoleESP") then
                             local color = Color3.fromRGB(0, 255, 100)
                             if plr == GetMurderer() then color = Color3.fromRGB(255, 0, 50)
-                            elseif plr == GetSheriff() then color = Color3.fromRGB(0, 150, 255) end
+                            elseif plr == GetSheriff() then color = ACCENT_COLOR end
                             local hl = Instance.new("Highlight")
                             hl.Name = "MM2RoleESP"
                             hl.FillColor = color
@@ -1000,7 +1112,7 @@ pEnemy:AddToggle("Role ESP (Murder/Sheriff)", false, function(state)
 end)
 
 local innocentHighlights = {}
-pEnemy:AddToggle("Innocents ESP", false, function(state)
+pEnemy:AddToggle("🟢 Innocents ESP", false, function(state)
     if state then
         for _, plr in ipairs(Players:GetPlayers()) do
             if plr ~= LocalPlayer and plr ~= GetMurderer() and plr ~= GetSheriff() and plr.Character then
@@ -1018,7 +1130,7 @@ pEnemy:AddToggle("Innocents ESP", false, function(state)
 end)
 
 local nameTags = {}
-pEnemy:AddToggle("Name ESP", false, function(state)
+pEnemy:AddToggle("📝 Name ESP", false, function(state)
     if state then
         for _, plr in ipairs(Players:GetPlayers()) do
             if plr ~= LocalPlayer and plr.Character and plr.Character:FindFirstChild("Head") then
@@ -1048,7 +1160,7 @@ end)
 
 -- VISUALS -> EXTRA
 local gunHighlights = {}
-pExtra:AddToggle("Dropped Gun ESP", false, function(state)
+pExtra:AddToggle("🔍 Gun Drop ESP", false, function(state)
     if state then
         local gunDrop = Workspace:FindFirstChild("GunDrop", true)
         if gunDrop then
@@ -1065,18 +1177,16 @@ pExtra:AddToggle("Dropped Gun ESP", false, function(state)
 end)
 
 local crosshairFrame = nil
-pExtra:AddToggle("Screen Crosshair", false, function(state)
+pExtra:AddToggle("➕ Screen Crosshair", false, function(state)
     if state then
         if not crosshairFrame then
             crosshairFrame = Instance.new("Frame")
             crosshairFrame.Size = UDim2.new(0, 6, 0, 6)
             crosshairFrame.Position = UDim2.new(0.5, -3, 0.5, -3)
-            crosshairFrame.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+            crosshairFrame.BackgroundColor3 = ACCENT_COLOR
             crosshairFrame.BorderSizePixel = 0
             crosshairFrame.Parent = ScreenGui
-            local crCorner = Instance.new("UICorner")
-            crCorner.CornerRadius = UDim.new(1, 0)
-            crCorner.Parent = crosshairFrame
+            Instance.new("UICorner", crosshairFrame).CornerRadius = UDim.new(1, 0)
         end
         crosshairFrame.Visible = true
     else
@@ -1086,7 +1196,7 @@ end)
 
 local tracerAdornment = nil
 local tracerConn = nil
-pExtra:AddToggle("Tracer to Murderer", false, function(state)
+pExtra:AddToggle("🔴 Tracer to Murderer", false, function(state)
     if state then
         tracerAdornment = Instance.new("LineHandleAdornment")
         tracerAdornment.Name = "MurdererTracer"
@@ -1116,18 +1226,18 @@ end)
 
 -- VISUALS -> WORLD
 local originalAmbient = Lighting.Ambient
-pWorld:AddToggle("Fullbright", false, function(state)
+pWorld:AddToggle("☀️ Fullbright", false, function(state)
     if CheckMaster() then Lighting.Ambient = state and Color3.fromRGB(255, 255, 255) or originalAmbient end
 end)
 
 local origFogEnd = Lighting.FogEnd
-pWorld:AddToggle("No Fog", false, function(state)
+pWorld:AddToggle("🌫️ No Fog", false, function(state)
     if CheckMaster() then Lighting.FogEnd = state and 9e9 or origFogEnd end
 end)
 
 local coinHighlights = {}
 local coinEspConn = nil
-pWorld:AddToggle("Coin ESP", false, function(state)
+pWorld:AddToggle("🪙 Coin ESP", false, function(state)
     if state then
         local container = FindCoinContainer()
         for _, v in ipairs(container:GetDescendants()) do
@@ -1149,7 +1259,7 @@ pWorld:AddToggle("Coin ESP", false, function(state)
 end)
 
 local customSky = nil
-pWorld:AddToggle("Skybox Changer", false, function(state)
+pWorld:AddToggle("🌌 Skybox Changer", false, function(state)
     if state and CheckMaster() then
         if not customSky then
             customSky = Instance.new("Sky")
@@ -1166,7 +1276,7 @@ pWorld:AddToggle("Skybox Changer", false, function(state)
     end
 end)
 
-pWorld:AddSlider("Time of Day", 0, 24, math.floor(Lighting.ClockTime), function(val)
+pWorld:AddSlider("⏱️ Time of Day", 0, 24, math.floor(Lighting.ClockTime), function(val)
     if CheckMaster() then Lighting.ClockTime = val end
 end)
 
@@ -1183,12 +1293,12 @@ local renderSteppedConn = RunService.RenderStepped:Connect(function()
 end)
 table.insert(activeCleanups, function() renderSteppedConn:Disconnect() end)
 
-tabMovement.PageObj:AddSlider("Walk Speed", 16, 120, 16, function(val) currentWalkSpeed = val end)
-tabMovement.PageObj:AddSlider("Jump Power", 50, 250, 50, function(val) currentJumpPower = val end)
+tabMovement.PageObj:AddSlider("⚡ Walk Speed", 16, 120, 16, function(val) currentWalkSpeed = val end)
+tabMovement.PageObj:AddSlider("🦘 Jump Power", 50, 250, 50, function(val) currentJumpPower = val end)
 
 local flying = false
 local flySpeed = 60
-tabMovement.PageObj:AddToggle("Fly Mode", false, function(state)
+tabMovement.PageObj:AddToggle("🦅 Fly Mode", false, function(state)
     flying = state
     if flying then
         task.spawn(function()
@@ -1214,7 +1324,7 @@ end)
 
 local noclip = false
 local noclipConn = nil
-tabMovement.PageObj:AddToggle("Noclip", false, function(state)
+tabMovement.PageObj:AddToggle("👻 Noclip", false, function(state)
     noclip = state
     if noclip then
         noclipConn = RunService.Stepped:Connect(function()
@@ -1230,7 +1340,7 @@ tabMovement.PageObj:AddToggle("Noclip", false, function(state)
     end
 end)
 
-tabMovement.PageObj:AddButton("TP to Murderer", function()
+tabMovement.PageObj:AddButton("🔪 TP to Murderer", function()
     if not CheckMaster() then return end
     local m = GetMurderer()
     if m and m.Character and m.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
@@ -1238,7 +1348,7 @@ tabMovement.PageObj:AddButton("TP to Murderer", function()
     end
 end)
 
-tabMovement.PageObj:AddButton("TP to Sheriff", function()
+tabMovement.PageObj:AddButton("👮 TP to Sheriff", function()
     if not CheckMaster() then return end
     local s = GetSheriff()
     if s and s.Character and s.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
@@ -1249,7 +1359,7 @@ end)
 -- MISCELLANEOUS
 local antiFlingActive = false
 local antiFlingConn = nil
-tabMisc.PageObj:AddToggle("Anti-Fling", false, function(state)
+tabMisc.PageObj:AddToggle("🛡️ Anti-Fling", false, function(state)
     antiFlingActive = state
     if state then
         antiFlingConn = RunService.Stepped:Connect(function()
@@ -1271,7 +1381,7 @@ tabMisc.PageObj:AddToggle("Anti-Fling", false, function(state)
 end)
 
 local autoClickerLoop = nil
-tabMisc.PageObj:AddToggle("Auto Clicker", false, function(state)
+tabMisc.PageObj:AddToggle("🖱️ Auto Clicker", false, function(state)
     if state then
         autoClickerLoop = task.spawn(function()
             while true do
@@ -1285,16 +1395,16 @@ tabMisc.PageObj:AddToggle("Auto Clicker", false, function(state)
     end
 end)
 
-tabMisc.PageObj:AddSlider("Camera FOV", 70, 120, 70, function(val)
+tabMisc.PageObj:AddSlider("🎥 Camera FOV", 70, 120, 70, function(val)
     if CheckMaster() then Workspace.CurrentCamera.FieldOfView = val end
 end)
 
 local spammerLoop = nil
-tabMisc.PageObj:AddToggle("Chat Spammer", false, function(state)
+tabMisc.PageObj:AddToggle("💬 Chat Spammer", false, function(state)
     if state then
         spammerLoop = task.spawn(function()
             while true do
-                if CheckMaster() then ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents"):FindFirstChild("SayMessageRequest"):FireServer("Thorium v2 - Translucent Edition", "All") end
+                if CheckMaster() then ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents"):FindFirstChild("SayMessageRequest"):FireServer("Thorium Lib v2 - Private Build", "All") end
                 task.wait(3)
             end
         end)
@@ -1304,21 +1414,21 @@ tabMisc.PageObj:AddToggle("Chat Spammer", false, function(state)
     end
 end)
 
-tabMisc.PageObj:AddButton("Unload Cheats", function()
+tabMisc.PageObj:AddButton("🗑️ Unload Cheats", function()
     if getgenv().ThoriumLib_Cleanup then getgenv().ThoriumLib_Cleanup() end
 end)
 
 -- SETTINGS
-tabSetting.PageObj:AddSlider("UI Scale Factor (%)", 50, 150, 100, function(val)
+tabSetting.PageObj:AddSlider("🔍 UI Scale Factor (%)", 50, 150, 100, function(val)
     MainFrameScale.Scale = val / 100
 end)
 
 local uiFonts = {Enum.Font.GothamMedium, Enum.Font.Code, Enum.Font.Jura, Enum.Font.Oswald, Enum.Font.Roboto}
 local currentFontIdx = 1
-tabSetting.PageObj:AddButton("Cycle UI Font: GothamMedium", function(btnRef)
+tabSetting.PageObj:AddButton("🅰️ Cycle UI Font", function(btnRef)
     currentFontIdx = currentFontIdx % #uiFonts + 1
     local selectedFont = uiFonts[currentFontIdx]
-    btnRef.Text = "Cycle UI Font: " .. selectedFont.Name
+    btnRef.Text = "🅰️ Cycle Font: " .. selectedFont.Name
     for _, obj in ipairs(ScreenGui:GetDescendants()) do
         if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
             pcall(function() obj.Font = selectedFont end)
@@ -1326,12 +1436,12 @@ tabSetting.PageObj:AddButton("Cycle UI Font: GothamMedium", function(btnRef)
     end
 end)
 
-tabSetting.PageObj:AddToggle("Streamer Mode (Hide Name)", false, function(state)
+tabSetting.PageObj:AddToggle("🕵️ Streamer Mode", false, function(state)
     pcall(function() game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.Chat, not state) end)
 end)
 
-tabSetting.PageObj:AddButton("Save Settings (Preset)", function(btnRef)
-    btnRef.Text = "Settings Saved!"
+tabSetting.PageObj:AddButton("💾 Save Settings", function(btnRef)
+    btnRef.Text = "✅ Settings Saved!"
     task.wait(1.5)
-    btnRef.Text = "Save Settings (Preset)"
+    btnRef.Text = "💾 Save Settings"
 end)
