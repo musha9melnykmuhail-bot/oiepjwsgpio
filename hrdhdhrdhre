@@ -77,7 +77,7 @@ MainFrame.Name = "MainFrame"
 MainFrame.Size = UDim2.new(0, 580, 0, 380)
 MainFrame.Position = UDim2.new(0.5, -290, 0.5, -190)
 MainFrame.BackgroundColor3 = BG_COLOR
-MainFrame.BackgroundTransparency = 0.05
+MainFrame.BackgroundTransparency = 0.25
 MainFrame.BorderSizePixel = 0
 MainFrame.ClipsDescendants = true
 MainFrame.Active = true
@@ -103,7 +103,7 @@ MobileToggleBtn.AnchorPoint = Vector2.new(0.5, 0.5)
 MobileToggleBtn.Size = UDim2.new(0, 48, 0, 48)
 MobileToggleBtn.Position = UDim2.new(0.05, 25, 0.2, 25)
 MobileToggleBtn.BackgroundColor3 = BG_COLOR
-MobileToggleBtn.BackgroundTransparency = 0.1
+MobileToggleBtn.BackgroundTransparency = 0.25
 MobileToggleBtn.Text = "T2"
 MobileToggleBtn.TextColor3 = ACCENT_COLOR
 MobileToggleBtn.Font = Enum.Font.GothamBold
@@ -149,7 +149,7 @@ local TopNotch = Instance.new("Frame")
 TopNotch.Name = "TopNotch"
 TopNotch.Size = UDim2.new(1, 0, 0, 42)
 TopNotch.BackgroundColor3 = Color3.fromRGB(10, 10, 14)
-TopNotch.BackgroundTransparency = 0.1
+TopNotch.BackgroundTransparency = 0.3
 TopNotch.BorderSizePixel = 0
 TopNotch.ZIndex = 5
 TopNotch.Parent = MainFrame
@@ -177,7 +177,7 @@ local MSContainer = Instance.new("Frame")
 MSContainer.Size = UDim2.new(0, 135, 0, 28)
 MSContainer.Position = UDim2.new(0, 140, 0.5, -14)
 MSContainer.BackgroundColor3 = ELEMENT_BG
-MSContainer.BackgroundTransparency = 0.2
+MSContainer.BackgroundTransparency = 0.3
 MSContainer.ZIndex = 6
 MSContainer.Parent = TopNotch
 
@@ -233,7 +233,7 @@ SearchContainer.AnchorPoint = Vector2.new(1, 0.5)
 SearchContainer.Size = UDim2.new(0, 28, 0, 28)
 SearchContainer.Position = UDim2.new(1, -12, 0.5, 0)
 SearchContainer.BackgroundColor3 = ELEMENT_BG
-SearchContainer.BackgroundTransparency = 0.2
+SearchContainer.BackgroundTransparency = 0.3
 SearchContainer.ClipsDescendants = true
 SearchContainer.ZIndex = 6
 SearchContainer.Parent = TopNotch
@@ -296,7 +296,7 @@ Sidebar.Name = "Sidebar"
 Sidebar.Size = UDim2.new(0, 145, 1, -95)
 Sidebar.Position = UDim2.new(0, 0, 0, 42)
 Sidebar.BackgroundColor3 = Color3.fromRGB(10, 10, 14)
-Sidebar.BackgroundTransparency = 0.2
+Sidebar.BackgroundTransparency = 0.35
 Sidebar.BorderSizePixel = 0
 Sidebar.ScrollBarThickness = 0
 Sidebar.Parent = MainFrame
@@ -314,6 +314,7 @@ local ProfileBtn = Instance.new("TextButton")
 ProfileBtn.Size = UDim2.new(0, 145, 0, 52)
 ProfileBtn.Position = UDim2.new(0, 0, 1, -52)
 ProfileBtn.BackgroundColor3 = Color3.fromRGB(10, 10, 14)
+ProfileBtn.BackgroundTransparency = 0.3
 ProfileBtn.BorderSizePixel = 0
 ProfileBtn.Text = ""
 ProfileBtn.AutoButtonColor = false
@@ -483,6 +484,7 @@ local function BuildTabObj(pageData)
         local frame = Instance.new("Frame")
         frame.Size = UDim2.new(1, -8, 0, 32)
         frame.BackgroundColor3 = ELEMENT_BG
+        frame.BackgroundTransparency = 0.25
         frame.BorderSizePixel = 0
         frame.Parent = target
         Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
@@ -534,6 +536,7 @@ local function BuildTabObj(pageData)
         local frame = Instance.new("Frame")
         frame.Size = UDim2.new(1, -8, 0, 42)
         frame.BackgroundColor3 = ELEMENT_BG
+        frame.BackgroundTransparency = 0.25
         frame.BorderSizePixel = 0
         frame.Parent = target
         Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
@@ -620,6 +623,7 @@ local function BuildTabObj(pageData)
         local frame = Instance.new("Frame")
         frame.Size = UDim2.new(1, -8, 0, 30)
         frame.BackgroundColor3 = ELEMENT_BG
+        frame.BackgroundTransparency = 0.25
         frame.BorderSizePixel = 0
         frame.Parent = target
         Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
@@ -1220,6 +1224,41 @@ end)
 
 pWorld:AddSlider("Time of Day", 0, 24, math.floor(Lighting.ClockTime), function(val)
     if CheckMaster() then Lighting.ClockTime = val end
+end)
+
+pWorld:AddSlider("Gravity", 0, 196, 196, function(val)
+    if CheckMaster() then Workspace.Gravity = val end
+end)
+
+pWorld:AddButton("Remove Barriers", function()
+    if not CheckMaster() then return end
+    for _, v in ipairs(Workspace:GetDescendants()) do
+        if v:IsA("BasePart") and (v.Name:lower():find("barrier") or v.Name:lower():find("clip") or (v.Transparency == 1 and v.CanCollide)) then
+            v.CanCollide = false
+        end
+    end
+end)
+
+pWorld:AddToggle("Remove Particles", false, function(state)
+    if not CheckMaster() then return end
+    for _, v in ipairs(Workspace:GetDescendants()) do
+        if v:IsA("ParticleEmitter") or v:IsA("Smoke") or v:IsA("Fire") or v:IsA("Sparkles") then
+            v.Enabled = not state
+        end
+    end
+end)
+
+pWorld:AddToggle("Disable Shadows", false, function(state)
+    if CheckMaster() then Lighting.GlobalShadows = not state end
+end)
+
+pWorld:AddButton("Remove Doors", function()
+    if not CheckMaster() then return end
+    for _, v in ipairs(Workspace:GetDescendants()) do
+        if v:IsA("BasePart") and v.Name:lower():find("door") then
+            v:Destroy()
+        end
+    end
 end)
 
 local currentWalkSpeed = 16
