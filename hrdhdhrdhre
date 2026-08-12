@@ -41,25 +41,28 @@ local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SoundService = game:GetService("SoundService")
 
-local ACCENT_COLOR = Color3.fromRGB(0, 170, 255)
-local SMOOTH_TWEEN = TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+-- Neverlose V4 Style Palette (Deep dark theme with signature indigo/purple accent and soft smooth corners)
+local ACCENT_COLOR = Color3.fromRGB(115, 103, 240)
+local BG_COLOR = Color3.fromRGB(13, 13, 18)
+local ELEMENT_BG = Color3.fromRGB(18, 18, 25)
+local ELEMENT_HOVER = Color3.fromRGB(24, 24, 34)
+local BORDER_COLOR = Color3.fromRGB(38, 38, 52)
+local SMOOTH_TWEEN = TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
 
--- Звук клика по функциям
+-- Click Sound
 local ClickSound = Instance.new("Sound")
 ClickSound.SoundId = "rbxassetid://9125402735"
-ClickSound.Volume = 1
+ClickSound.Volume = 0.8
 ClickSound.Parent = SoundService
 table.insert(activeCleanups, function() if ClickSound then ClickSound:Destroy() end end)
 
 local function PlayClickSound()
-    pcall(function()
-        ClickSound:Play()
-    end)
+    pcall(function() ClickSound:Play() end)
 end
 
 local UIBlur = Instance.new("BlurEffect")
 UIBlur.Name = "ThoriumBlurEffect"
-UIBlur.Size = 24
+UIBlur.Size = 20
 UIBlur.Enabled = true
 UIBlur.Parent = Lighting
 table.insert(activeCleanups, function() if UIBlur then UIBlur:Destroy() end end)
@@ -72,15 +75,15 @@ local success, _ = pcall(function() ScreenGui.Parent = CoreGui end)
 if not success then ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
 
 -- ==========================================
--- MAIN FRAME & MOBILE BUTTON
+-- MAIN FRAME & MOBILE BUTTON (Soft Corners)
 -- ==========================================
 
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
 MainFrame.Size = UDim2.new(0, 580, 0, 380)
 MainFrame.Position = UDim2.new(0.5, -290, 0.5, -190)
-MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 16)
-MainFrame.BackgroundTransparency = 0.15
+MainFrame.BackgroundColor3 = BG_COLOR
+MainFrame.BackgroundTransparency = 0.05
 MainFrame.BorderSizePixel = 0
 MainFrame.ClipsDescendants = true
 MainFrame.Active = true
@@ -92,25 +95,30 @@ MainFrameScale.Scale = 1.0
 MainFrameScale.Parent = MainFrame
 
 local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 8)
-MainCorner.Parent = MainFrame
+MainCorner.CornerRadius = UDim.new(0, 12) -- Soft rounded corners
+MainFrame.Parent = ScreenGui
+
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Color = BORDER_COLOR
+MainStroke.Thickness = 1
+MainStroke.Parent = MainFrame
 
 local MobileToggleBtn = Instance.new("TextButton")
 MobileToggleBtn.Name = "MobileToggleBtn"
 MobileToggleBtn.AnchorPoint = Vector2.new(0.5, 0.5)
-MobileToggleBtn.Size = UDim2.new(0, 50, 0, 50)
+MobileToggleBtn.Size = UDim2.new(0, 48, 0, 48)
 MobileToggleBtn.Position = UDim2.new(0.05, 25, 0.2, 25)
-MobileToggleBtn.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
-MobileToggleBtn.BackgroundTransparency = 0.2
-MobileToggleBtn.Text = "v2"
+MobileToggleBtn.BackgroundColor3 = BG_COLOR
+MobileToggleBtn.BackgroundTransparency = 0.1
+MobileToggleBtn.Text = "NL"
 MobileToggleBtn.TextColor3 = ACCENT_COLOR
 MobileToggleBtn.Font = Enum.Font.GothamBold
-MobileToggleBtn.TextSize = 18
+MobileToggleBtn.TextSize = 14
 MobileToggleBtn.ZIndex = 100
 MobileToggleBtn.Parent = ScreenGui
 
 local MobileCorner = Instance.new("UICorner")
-MobileCorner.CornerRadius = UDim.new(0, 25)
+MobileCorner.CornerRadius = UDim.new(0, 14)
 MobileCorner.Parent = MobileToggleBtn
 
 local MobileStroke = Instance.new("UIStroke")
@@ -141,16 +149,13 @@ end)
 MobileToggleBtn.MouseButton1Click:Connect(function()
     MainFrame.Visible = not MainFrame.Visible
     UIBlur.Enabled = MainFrame.Visible
-    TweenService:Create(MobileToggleBtn, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 42, 0, 42)}):Play()
-    task.wait(0.1)
-    TweenService:Create(MobileToggleBtn, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 50, 0, 50)}):Play()
 end)
 
 local TopNotch = Instance.new("Frame")
 TopNotch.Name = "TopNotch"
-TopNotch.Size = UDim2.new(1, 0, 0, 45)
-TopNotch.BackgroundColor3 = Color3.fromRGB(8, 8, 12)
-TopNotch.BackgroundTransparency = 0.2
+TopNotch.Size = UDim2.new(1, 0, 0, 42)
+TopNotch.BackgroundColor3 = Color3.fromRGB(10, 10, 14)
+TopNotch.BackgroundTransparency = 0.1
 TopNotch.BorderSizePixel = 0
 TopNotch.ZIndex = 5
 TopNotch.Parent = MainFrame
@@ -158,7 +163,7 @@ TopNotch.Parent = MainFrame
 local TopNotchLine = Instance.new("Frame")
 TopNotchLine.Size = UDim2.new(1, 0, 0, 1)
 TopNotchLine.Position = UDim2.new(0, 0, 1, 0)
-TopNotchLine.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+TopNotchLine.BackgroundColor3 = BORDER_COLOR
 TopNotchLine.BorderSizePixel = 0
 TopNotchLine.Parent = TopNotch
 
@@ -166,74 +171,44 @@ local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(0, 180, 1, 0)
 Title.Position = UDim2.new(0, 15, 0, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "Thorium Lib v2"
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.TextSize = 14
+Title.Text = "neverlose.cc"
+Title.TextColor3 = Color3.fromRGB(240, 240, 255)
+Title.TextSize = 13
 Title.Font = Enum.Font.GothamBold
 Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.ZIndex = 6
 Title.Parent = TopNotch
 
 -- ==========================================
--- WATERMARK (Сделан в виде вкладки на профиле игрока по запросу)
--- ==========================================
-local Watermark = Instance.new("Frame")
-Watermark.Name = "Watermark"
-Watermark.Size = UDim2.new(0, 320, 0, 35)
-Watermark.Position = UDim2.new(0.5, -160, 1, 50)
-Watermark.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
-Watermark.BorderSizePixel = 0
-Watermark.ZIndex = 100
-Watermark.Parent = ScreenGui
-
-local WMCorner = Instance.new("UICorner")
-WMCorner.CornerRadius = UDim.new(0, 8)
-WMCorner.Parent = Watermark
-
-local WMStroke = Instance.new("UIStroke")
-WMStroke.Color = ACCENT_COLOR
-WMStroke.Thickness = 1
-WMStroke.Parent = Watermark
-
-local WMLabel = Instance.new("TextLabel")
-WMLabel.Size = UDim2.new(1, 0, 1, 0)
-WMLabel.BackgroundTransparency = 1
-WMLabel.Text = "THORIUM LIB V2 | PRIVATE BUILD | TESTER"
-WMLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
-WMLabel.Font = Enum.Font.GothamBold
-WMLabel.TextSize = 11
-WMLabel.Parent = Watermark
-
--- ==========================================
 -- MASTER SWITCH & SEARCH
 -- ==========================================
 local MSContainer = Instance.new("Frame")
-MSContainer.Size = UDim2.new(0, 140, 0, 28)
-MSContainer.Position = UDim2.new(0, 160, 0.5, -14)
-MSContainer.BackgroundColor3 = Color3.fromRGB(18, 18, 25)
-MSContainer.BackgroundTransparency = 0.3
+MSContainer.Size = UDim2.new(0, 135, 0, 26)
+MSContainer.Position = UDim2.new(0, 140, 0.5, -13)
+MSContainer.BackgroundColor3 = ELEMENT_BG
+MSContainer.BackgroundTransparency = 0.2
 MSContainer.ZIndex = 6
 MSContainer.Parent = TopNotch
 
 local MSCorner = Instance.new("UICorner")
-MSCorner.CornerRadius = UDim.new(0, 8)
+MSCorner.CornerRadius = UDim.new(0, 6)
 MSCorner.Parent = MSContainer
 
 local MSLabel = Instance.new("TextLabel")
-MSLabel.Size = UDim2.new(1, -40, 1, 0)
+MSLabel.Size = UDim2.new(1, -36, 1, 0)
 MSLabel.Position = UDim2.new(0, 8, 0, 0)
 MSLabel.BackgroundTransparency = 1
 MSLabel.Text = "Master Switch"
-MSLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+MSLabel.TextColor3 = Color3.fromRGB(180, 180, 195)
 MSLabel.Font = Enum.Font.GothamMedium
-MSLabel.TextSize = 11
+MSLabel.TextSize = 10
 MSLabel.TextXAlignment = Enum.TextXAlignment.Left
 MSLabel.ZIndex = 6
 MSLabel.Parent = MSContainer
 
 local MSBtn = Instance.new("TextButton")
-MSBtn.Size = UDim2.new(0, 30, 0, 16)
-MSBtn.Position = UDim2.new(1, -34, 0.5, -8)
+MSBtn.Size = UDim2.new(0, 26, 0, 14)
+MSBtn.Position = UDim2.new(1, -30, 0.5, -7)
 MSBtn.BackgroundColor3 = ACCENT_COLOR
 MSBtn.Text = ""
 MSBtn.ZIndex = 6
@@ -244,8 +219,8 @@ MSBtnCorner.CornerRadius = UDim.new(1, 0)
 MSBtnCorner.Parent = MSBtn
 
 local MSCircle = Instance.new("Frame")
-MSCircle.Size = UDim2.new(0, 12, 0, 12)
-MSCircle.Position = UDim2.new(1, -14, 0.5, -6)
+MSCircle.Size = UDim2.new(0, 10, 0, 10)
+MSCircle.Position = UDim2.new(1, -12, 0.5, -5)
 MSCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 MSCircle.ZIndex = 7
 MSCircle.Parent = MSBtn
@@ -258,28 +233,29 @@ MSBtn.MouseButton1Click:Connect(function()
     PlayClickSound()
     getgenv().Thorium_MasterSwitch = not getgenv().Thorium_MasterSwitch
     local enabled = getgenv().Thorium_MasterSwitch
-    TweenService:Create(MSBtn, SMOOTH_TWEEN, {BackgroundColor3 = enabled and ACCENT_COLOR or Color3.fromRGB(35, 35, 45)}):Play()
-    TweenService:Create(MSCircle, SMOOTH_TWEEN, {Position = enabled and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)}):Play()
+    TweenService:Create(MSBtn, SMOOTH_TWEEN, {BackgroundColor3 = enabled and ACCENT_COLOR or Color3.fromRGB(40, 40, 52)}):Play()
+    TweenService:Create(MSCircle, SMOOTH_TWEEN, {Position = enabled and UDim2.new(1, -12, 0.5, -5) or UDim2.new(0, 2, 0.5, -5)}):Play()
 end)
 
 local SearchContainer = Instance.new("Frame")
 SearchContainer.AnchorPoint = Vector2.new(1, 0.5)
-SearchContainer.Size = UDim2.new(0, 30, 0, 30)
-SearchContainer.Position = UDim2.new(1, -10, 0.5, 0)
+SearchContainer.Size = UDim2.new(0, 26, 0, 26)
+SearchContainer.Position = UDim2.new(1, -12, 0.5, 0)
 SearchContainer.BackgroundTransparency = 1
 SearchContainer.ClipsDescendants = true
 SearchContainer.ZIndex = 6
 SearchContainer.Parent = TopNotch
 
 local SearchBox = Instance.new("TextBox")
-SearchBox.Size = UDim2.new(1, -30, 1, 0)
+SearchBox.Size = UDim2.new(1, -26, 1, 0)
 SearchBox.Position = UDim2.new(0, 0, 0, 0)
-SearchBox.BackgroundColor3 = Color3.fromRGB(18, 18, 25)
-SearchBox.PlaceholderText = "Поиск..."
+SearchBox.BackgroundColor3 = ELEMENT_BG
+SearchBox.PlaceholderText = "Search..."
 SearchBox.Text = ""
-SearchBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+SearchBox.TextColor3 = Color3.fromRGB(240, 240, 255)
+SearchBox.PlaceholderColor3 = Color3.fromRGB(120, 120, 140)
 SearchBox.Font = Enum.Font.GothamMedium
-SearchBox.TextSize = 12
+SearchBox.TextSize = 11
 SearchBox.Visible = false
 SearchBox.ZIndex = 6
 SearchBox.Parent = SearchContainer
@@ -287,7 +263,7 @@ Instance.new("UICorner", SearchBox).CornerRadius = UDim.new(0, 6)
 
 local SearchIconBtn = Instance.new("TextButton")
 SearchIconBtn.AnchorPoint = Vector2.new(1, 0)
-SearchIconBtn.Size = UDim2.new(0, 30, 0, 30)
+SearchIconBtn.Size = UDim2.new(0, 26, 0, 26)
 SearchIconBtn.Position = UDim2.new(1, 0, 0, 0)
 SearchIconBtn.BackgroundTransparency = 1
 SearchIconBtn.Text = ""
@@ -295,11 +271,11 @@ SearchIconBtn.ZIndex = 6
 SearchIconBtn.Parent = SearchContainer
 
 local SearchIconImg = Instance.new("ImageLabel")
-SearchIconImg.Size = UDim2.new(0, 14, 0, 14)
-SearchIconImg.Position = UDim2.new(0.5, -7, 0.5, -7)
+SearchIconImg.Size = UDim2.new(0, 13, 0, 13)
+SearchIconImg.Position = UDim2.new(0.5, -6, 0.5, -6)
 SearchIconImg.BackgroundTransparency = 1
 SearchIconImg.Image = "rbxassetid://11419713964"
-SearchIconImg.ImageColor3 = Color3.fromRGB(255, 255, 255)
+SearchIconImg.ImageColor3 = Color3.fromRGB(180, 180, 195)
 SearchIconImg.ZIndex = 6
 SearchIconImg.Parent = SearchIconBtn
 
@@ -308,40 +284,40 @@ SearchIconBtn.MouseButton1Click:Connect(function()
     searchOpen = not searchOpen
     if searchOpen then
         SearchBox.Visible = true
-        SearchContainer:TweenSize(UDim2.new(0, 180, 0, 30), "Out", "Quart", 0.3, true)
+        SearchContainer:TweenSize(UDim2.new(0, 160, 0, 26), "Out", "Quart", 0.25, true)
     else
         SearchBox.Text = ""
-        SearchContainer:TweenSize(UDim2.new(0, 30, 0, 30), "Out", "Quart", 0.3, true, function() SearchBox.Visible = false end)
+        SearchContainer:TweenSize(UDim2.new(0, 26, 0, 26), "Out", "Quart", 0.25, true, function() SearchBox.Visible = false end)
     end
 end)
 
 -- ==========================================
--- SIDEBAR & PROFILE (Вкладка-профиль игрока снизу)
+-- SIDEBAR & PROFILE (Watermark completely removed)
 -- ==========================================
 local Sidebar = Instance.new("ScrollingFrame")
 Sidebar.Name = "Sidebar"
-Sidebar.Size = UDim2.new(0, 150, 1, -100)
-Sidebar.Position = UDim2.new(0, 0, 0, 45)
-Sidebar.BackgroundColor3 = Color3.fromRGB(8, 8, 12)
-Sidebar.BackgroundTransparency = 0.25
+Sidebar.Size = UDim2.new(0, 145, 1, -95)
+Sidebar.Position = UDim2.new(0, 0, 0, 42)
+Sidebar.BackgroundColor3 = Color3.fromRGB(10, 10, 14)
+Sidebar.BackgroundTransparency = 0.2
 Sidebar.BorderSizePixel = 0
 Sidebar.ScrollBarThickness = 0
 Sidebar.Parent = MainFrame
 
 local SidebarLayout = Instance.new("UIListLayout")
 SidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
-SidebarLayout.Padding = UDim.new(0, 4)
+SidebarLayout.Padding = UDim.new(0, 3)
 SidebarLayout.Parent = Sidebar
 
 SidebarLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
     Sidebar.CanvasSize = UDim2.new(0, 0, 0, SidebarLayout.AbsoluteContentSize.Y + 10)
 end)
 
--- Профиль-вкладка
+-- Clean Profile Tab (No watermark functionality or elements whatsoever)
 local ProfileBtn = Instance.new("TextButton")
-ProfileBtn.Size = UDim2.new(0, 150, 0, 55)
-ProfileBtn.Position = UDim2.new(0, 0, 1, -55)
-ProfileBtn.BackgroundColor3 = Color3.fromRGB(12, 12, 18)
+ProfileBtn.Size = UDim2.new(0, 145, 0, 52)
+ProfileBtn.Position = UDim2.new(0, 0, 1, -52)
+ProfileBtn.BackgroundColor3 = Color3.fromRGB(10, 10, 14)
 ProfileBtn.BorderSizePixel = 0
 ProfileBtn.Text = ""
 ProfileBtn.AutoButtonColor = false
@@ -350,62 +326,54 @@ ProfileBtn.Parent = MainFrame
 local ProfileLine = Instance.new("Frame")
 ProfileLine.Size = UDim2.new(1, 0, 0, 1)
 ProfileLine.Position = UDim2.new(0, 0, 0, 0)
-ProfileLine.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+ProfileLine.BackgroundColor3 = BORDER_COLOR
 ProfileLine.BorderSizePixel = 0
 ProfileLine.Parent = ProfileBtn
 
 local Nickname = Instance.new("TextLabel")
-Nickname.Size = UDim2.new(0, 130, 0, 15)
+Nickname.Size = UDim2.new(0, 125, 0, 14)
 Nickname.Position = UDim2.new(0, 12, 0, 12)
 Nickname.BackgroundTransparency = 1
 Nickname.Text = "Tester"
-Nickname.TextColor3 = Color3.fromRGB(255, 255, 255)
+Nickname.TextColor3 = Color3.fromRGB(240, 240, 255)
 Nickname.Font = Enum.Font.GothamBold
-Nickname.TextSize = 12
+Nickname.TextSize = 11
 Nickname.TextXAlignment = Enum.TextXAlignment.Left
 Nickname.Parent = ProfileBtn
 
 local Role = Instance.new("TextLabel")
-Role.Size = UDim2.new(0, 130, 0, 15)
-Role.Position = UDim2.new(0, 12, 0, 27)
+Role.Size = UDim2.new(0, 125, 0, 14)
+Role.Position = UDim2.new(0, 12, 0, 26)
 Role.BackgroundTransparency = 1
-Role.Text = "Developer"
+Role.Text = "Neverlose User"
 Role.TextColor3 = ACCENT_COLOR
 Role.Font = Enum.Font.GothamMedium
-Role.TextSize = 10
+Role.TextSize = 9
 Role.TextXAlignment = Enum.TextXAlignment.Left
 Role.Parent = ProfileBtn
 
-local wmOpen = false
-ProfileBtn.MouseButton1Click:Connect(function()
-    PlayClickSound()
-    wmOpen = not wmOpen
-    local targetPos = wmOpen and UDim2.new(0.5, -160, 1, -45) or UDim2.new(0.5, -160, 1, 50)
-    TweenService:Create(Watermark, SMOOTH_TWEEN, {Position = targetPos}):Play()
-end)
-
 ProfileBtn.MouseEnter:Connect(function()
-    TweenService:Create(ProfileBtn, SMOOTH_TWEEN, {BackgroundColor3 = Color3.fromRGB(18, 18, 26)}):Play()
+    TweenService:Create(ProfileBtn, SMOOTH_TWEEN, {BackgroundColor3 = Color3.fromRGB(15, 15, 20)}):Play()
 end)
 ProfileBtn.MouseLeave:Connect(function()
-    TweenService:Create(ProfileBtn, SMOOTH_TWEEN, {BackgroundColor3 = Color3.fromRGB(12, 12, 18)}):Play()
+    TweenService:Create(ProfileBtn, SMOOTH_TWEEN, {BackgroundColor3 = Color3.fromRGB(10, 10, 14)}):Play()
 end)
 
 local ContentArea = Instance.new("Frame")
 ContentArea.Name = "ContentArea"
-ContentArea.Size = UDim2.new(1, -150, 1, -45)
-ContentArea.Position = UDim2.new(0, 150, 0, 45)
+ContentArea.Size = UDim2.new(1, -145, 1, -42)
+ContentArea.Position = UDim2.new(0, 145, 0, 42)
 ContentArea.BackgroundTransparency = 1
 ContentArea.Parent = MainFrame
 
 local ContentLine = Instance.new("Frame")
 ContentLine.Size = UDim2.new(0, 1, 1, 0)
 ContentLine.Position = UDim2.new(0, 0, 0, 0)
-ContentLine.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+ContentLine.BackgroundColor3 = BORDER_COLOR
 ContentLine.BorderSizePixel = 0
 ContentLine.Parent = ContentArea
 
--- Dragging (Перемещение исправлено строго за TopNotch)
+-- Dragging (Strictly via TopNotch)
 local dragging, dragInput, dragStart, startPos
 TopNotch.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -445,15 +413,15 @@ local activePageRef = nil
 local function HideAllPages()
     for _, tabData in ipairs(TabsList) do
         if tabData.Type == "MainWithSub" then
-            TweenService:Create(tabData.Btn, SMOOTH_TWEEN, {TextColor3 = Color3.fromRGB(150, 150, 160)}):Play()
+            TweenService:Create(tabData.Btn, SMOOTH_TWEEN, {TextColor3 = Color3.fromRGB(140, 140, 155)}):Play()
             for _, sub in ipairs(tabData.SubTabs) do
                 sub.Page.Visible = false
-                TweenService:Create(sub.Btn, SMOOTH_TWEEN, {TextColor3 = Color3.fromRGB(100, 100, 110)}):Play()
+                TweenService:Create(sub.Btn, SMOOTH_TWEEN, {TextColor3 = Color3.fromRGB(100, 100, 115)}):Play()
                 if sub.Indicator then sub.Indicator.Visible = false end
             end
         elseif tabData.Type == "Direct" then
             tabData.Page.Visible = false
-            TweenService:Create(tabData.Btn, SMOOTH_TWEEN, {TextColor3 = Color3.fromRGB(150, 150, 160)}):Play()
+            TweenService:Create(tabData.Btn, SMOOTH_TWEEN, {TextColor3 = Color3.fromRGB(140, 140, 155)}):Play()
             if tabData.Indicator then tabData.Indicator.Visible = false end
         end
     end
@@ -468,28 +436,28 @@ local function CreateContentPage(name)
     page.Parent = ContentArea
 
     local leftCol = Instance.new("ScrollingFrame")
-    leftCol.Size = UDim2.new(0.5, -15, 1, -20)
-    leftCol.Position = UDim2.new(0, 10, 0, 10)
+    leftCol.Size = UDim2.new(0.5, -12, 1, -16)
+    leftCol.Position = UDim2.new(0, 8, 0, 8)
     leftCol.BackgroundTransparency = 1
     leftCol.ScrollBarThickness = 0
     leftCol.BorderSizePixel = 0
     leftCol.Parent = page
     local leftLayout = Instance.new("UIListLayout")
     leftLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    leftLayout.Padding = UDim.new(0, 8)
+    leftLayout.Padding = UDim.new(0, 6)
     leftLayout.Parent = leftCol
     leftLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function() leftCol.CanvasSize = UDim2.new(0, 0, 0, leftLayout.AbsoluteContentSize.Y + 10) end)
 
     local rightCol = Instance.new("ScrollingFrame")
-    rightCol.Size = UDim2.new(0.5, -15, 1, -20)
-    rightCol.Position = UDim2.new(0.5, 5, 0, 10)
+    rightCol.Size = UDim2.new(0.5, -12, 1, -16)
+    rightCol.Position = UDim2.new(0.5, 4, 0, 8)
     rightCol.BackgroundTransparency = 1
     rightCol.ScrollBarThickness = 0
     rightCol.BorderSizePixel = 0
     rightCol.Parent = page
     local rightLayout = Instance.new("UIListLayout")
     rightLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    rightLayout.Padding = UDim.new(0, 8)
+    rightLayout.Padding = UDim.new(0, 6)
     rightLayout.Parent = rightCol
     rightLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function() rightCol.CanvasSize = UDim2.new(0, 0, 0, rightLayout.AbsoluteContentSize.Y + 10) end)
 
@@ -508,34 +476,34 @@ local function BuildTabObj(pageData)
         local state = default or false
 
         local frame = Instance.new("Frame")
-        frame.Size = UDim2.new(1, -10, 0, 36)
-        frame.BackgroundColor3 = Color3.fromRGB(18, 18, 25)
+        frame.Size = UDim2.new(1, -8, 0, 32)
+        frame.BackgroundColor3 = ELEMENT_BG
         frame.BorderSizePixel = 0
         frame.Parent = target
-        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8) -- Гладкие углы 8 хр
+        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8) -- Soft smooth corners
 
         local lbl = Instance.new("TextLabel")
-        lbl.Size = UDim2.new(1, -50, 1, 0)
+        lbl.Size = UDim2.new(1, -45, 1, 0)
         lbl.Position = UDim2.new(0, 10, 0, 0)
         lbl.BackgroundTransparency = 1
         lbl.Text = text
-        lbl.TextColor3 = Color3.fromRGB(220, 220, 220)
+        lbl.TextColor3 = Color3.fromRGB(200, 200, 215)
         lbl.Font = Enum.Font.GothamMedium
-        lbl.TextSize = 11
+        lbl.TextSize = 10.5
         lbl.TextXAlignment = Enum.TextXAlignment.Left
         lbl.Parent = frame
 
         local btn = Instance.new("TextButton")
-        btn.Size = UDim2.new(0, 30, 0, 16)
-        btn.Position = UDim2.new(1, -40, 0.5, -8)
-        btn.BackgroundColor3 = state and ACCENT_COLOR or Color3.fromRGB(35, 35, 45)
+        btn.Size = UDim2.new(0, 28, 0, 14)
+        btn.Position = UDim2.new(1, -36, 0.5, -7)
+        btn.BackgroundColor3 = state and ACCENT_COLOR or Color3.fromRGB(40, 40, 52)
         btn.Text = ""
         btn.Parent = frame
         Instance.new("UICorner", btn).CornerRadius = UDim.new(1, 0)
 
         local circle = Instance.new("Frame")
-        circle.Size = UDim2.new(0, 12, 0, 12)
-        circle.Position = state and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)
+        circle.Size = UDim2.new(0, 10, 0, 10)
+        circle.Position = state and UDim2.new(1, -12, 0.5, -5) or UDim2.new(0, 2, 0.5, -5)
         circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         circle.Parent = btn
         Instance.new("UICorner", circle).CornerRadius = UDim.new(1, 0)
@@ -543,13 +511,13 @@ local function BuildTabObj(pageData)
         btn.MouseButton1Click:Connect(function()
             PlayClickSound()
             state = not state
-            TweenService:Create(btn, SMOOTH_TWEEN, {BackgroundColor3 = state and ACCENT_COLOR or Color3.fromRGB(35, 35, 45)}):Play()
-            TweenService:Create(circle, SMOOTH_TWEEN, {Position = state and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)}):Play()
+            TweenService:Create(btn, SMOOTH_TWEEN, {BackgroundColor3 = state and ACCENT_COLOR or Color3.fromRGB(40, 40, 52)}):Play()
+            TweenService:Create(circle, SMOOTH_TWEEN, {Position = state and UDim2.new(1, -12, 0.5, -5) or UDim2.new(0, 2, 0.5, -5)}):Play()
             task.spawn(callback, state)
         end)
 
-        frame.MouseEnter:Connect(function() TweenService:Create(frame, SMOOTH_TWEEN, {BackgroundColor3 = Color3.fromRGB(24, 24, 32)}):Play() end)
-        frame.MouseLeave:Connect(function() TweenService:Create(frame, SMOOTH_TWEEN, {BackgroundColor3 = Color3.fromRGB(18, 18, 25)}):Play() end)
+        frame.MouseEnter:Connect(function() TweenService:Create(frame, SMOOTH_TWEEN, {BackgroundColor3 = ELEMENT_HOVER}):Play() end)
+        frame.MouseLeave:Connect(function() TweenService:Create(frame, SMOOTH_TWEEN, {BackgroundColor3 = ELEMENT_BG}):Play() end)
 
         table.insert(AllUIElements, {Text = text, Frame = frame, PageObj = self})
     end
@@ -559,38 +527,38 @@ local function BuildTabObj(pageData)
         local val = math.clamp(default or min, min, max)
 
         local frame = Instance.new("Frame")
-        frame.Size = UDim2.new(1, -10, 0, 45)
-        frame.BackgroundColor3 = Color3.fromRGB(18, 18, 25)
+        frame.Size = UDim2.new(1, -8, 0, 42)
+        frame.BackgroundColor3 = ELEMENT_BG
         frame.BorderSizePixel = 0
         frame.Parent = target
         Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
 
         local lbl = Instance.new("TextLabel")
-        lbl.Size = UDim2.new(0.7, 0, 0, 20)
-        lbl.Position = UDim2.new(0, 10, 0, 5)
+        lbl.Size = UDim2.new(0.7, 0, 0, 18)
+        lbl.Position = UDim2.new(0, 10, 0, 4)
         lbl.BackgroundTransparency = 1
         lbl.Text = text
-        lbl.TextColor3 = Color3.fromRGB(220, 220, 220)
+        lbl.TextColor3 = Color3.fromRGB(200, 200, 215)
         lbl.Font = Enum.Font.GothamMedium
-        lbl.TextSize = 11
+        lbl.TextSize = 10.5
         lbl.TextXAlignment = Enum.TextXAlignment.Left
         lbl.Parent = frame
 
         local valLbl = Instance.new("TextLabel")
-        valLbl.Size = UDim2.new(0.3, -10, 0, 20)
-        valLbl.Position = UDim2.new(0.7, 0, 0, 5)
+        valLbl.Size = UDim2.new(0.3, -10, 0, 18)
+        valLbl.Position = UDim2.new(0.7, 0, 0, 4)
         valLbl.BackgroundTransparency = 1
         valLbl.Text = tostring(val)
         valLbl.TextColor3 = ACCENT_COLOR
         valLbl.Font = Enum.Font.GothamMedium
-        valLbl.TextSize = 11
+        valLbl.TextSize = 10.5
         valLbl.TextXAlignment = Enum.TextXAlignment.Right
         valLbl.Parent = frame
 
         local track = Instance.new("Frame")
         track.Size = UDim2.new(1, -20, 0, 4)
-        track.Position = UDim2.new(0, 10, 1, -12)
-        track.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+        track.Position = UDim2.new(0, 10, 1, -11)
+        track.BackgroundColor3 = Color3.fromRGB(35, 35, 48)
         track.BorderSizePixel = 0
         track.Parent = frame
         Instance.new("UICorner", track).CornerRadius = UDim.new(1, 0)
@@ -613,7 +581,7 @@ local function BuildTabObj(pageData)
             local posX = math.clamp((input.Position.X - track.AbsolutePosition.X) / track.AbsoluteSize.X, 0, 1)
             val = math.floor(min + (max - min) * posX)
             valLbl.Text = tostring(val)
-            TweenService:Create(fill, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(posX, 0, 1, 0)}):Play()
+            TweenService:Create(fill, TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(posX, 0, 1, 0)}):Play()
             task.spawn(callback, val)
         end
 
@@ -635,8 +603,8 @@ local function BuildTabObj(pageData)
             end
         end)
 
-        frame.MouseEnter:Connect(function() TweenService:Create(frame, SMOOTH_TWEEN, {BackgroundColor3 = Color3.fromRGB(24, 24, 32)}):Play() end)
-        frame.MouseLeave:Connect(function() TweenService:Create(frame, SMOOTH_TWEEN, {BackgroundColor3 = Color3.fromRGB(18, 18, 25)}):Play() end)
+        frame.MouseEnter:Connect(function() TweenService:Create(frame, SMOOTH_TWEEN, {BackgroundColor3 = ELEMENT_HOVER}):Play() end)
+        frame.MouseLeave:Connect(function() TweenService:Create(frame, SMOOTH_TWEEN, {BackgroundColor3 = ELEMENT_BG}):Play() end)
 
         table.insert(AllUIElements, {Text = text, Frame = frame, PageObj = self})
     end
@@ -645,8 +613,8 @@ local function BuildTabObj(pageData)
         local target = self:GetNextParent()
         
         local frame = Instance.new("Frame")
-        frame.Size = UDim2.new(1, -10, 0, 34)
-        frame.BackgroundColor3 = Color3.fromRGB(18, 18, 25)
+        frame.Size = UDim2.new(1, -8, 0, 30)
+        frame.BackgroundColor3 = ELEMENT_BG
         frame.BorderSizePixel = 0
         frame.Parent = target
         Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
@@ -655,21 +623,21 @@ local function BuildTabObj(pageData)
         btn.Size = UDim2.new(1, 0, 1, 0)
         btn.BackgroundTransparency = 1
         btn.Text = text
-        btn.TextColor3 = Color3.fromRGB(220, 220, 220)
+        btn.TextColor3 = Color3.fromRGB(200, 200, 215)
         btn.Font = Enum.Font.GothamMedium
-        btn.TextSize = 11
+        btn.TextSize = 10.5
         btn.Parent = frame
 
         btn.MouseButton1Click:Connect(function()
             PlayClickSound()
             TweenService:Create(frame, TweenInfo.new(0.1), {BackgroundColor3 = ACCENT_COLOR}):Play()
             task.wait(0.1)
-            TweenService:Create(frame, SMOOTH_TWEEN, {BackgroundColor3 = Color3.fromRGB(18, 18, 25)}):Play()
+            TweenService:Create(frame, SMOOTH_TWEEN, {BackgroundColor3 = ELEMENT_BG}):Play()
             task.spawn(callback, btn)
         end)
 
-        frame.MouseEnter:Connect(function() TweenService:Create(frame, SMOOTH_TWEEN, {BackgroundColor3 = Color3.fromRGB(24, 24, 32)}):Play() end)
-        frame.MouseLeave:Connect(function() TweenService:Create(frame, SMOOTH_TWEEN, {BackgroundColor3 = Color3.fromRGB(18, 18, 25)}):Play() end)
+        frame.MouseEnter:Connect(function() TweenService:Create(frame, SMOOTH_TWEEN, {BackgroundColor3 = ELEMENT_HOVER}):Play() end)
+        frame.MouseLeave:Connect(function() TweenService:Create(frame, SMOOTH_TWEEN, {BackgroundColor3 = ELEMENT_BG}):Play() end)
         
         table.insert(AllUIElements, {Text = text, Frame = frame, PageObj = self})
         return btn
@@ -693,14 +661,14 @@ local function AddMainTab(tabName, hasSubTabs)
     local tabObj = {Name = tabName, Type = hasSubTabs and "MainWithSub" or "Direct", SubTabs = {}}
 
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, 0, 0, 38)
-    btn.BackgroundColor3 = Color3.fromRGB(12, 12, 16)
+    btn.Size = UDim2.new(1, 0, 0, 36)
+    btn.BackgroundColor3 = Color3.fromRGB(10, 10, 14)
     btn.BackgroundTransparency = 1
     btn.BorderSizePixel = 0
     btn.Text = "      " .. tabName
-    btn.TextColor3 = Color3.fromRGB(150, 150, 160)
+    btn.TextColor3 = Color3.fromRGB(140, 140, 155)
     btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 12
+    btn.TextSize = 11.5
     btn.TextXAlignment = Enum.TextXAlignment.Left
     btn.Parent = Sidebar
     tabObj.Btn = btn
@@ -759,7 +727,7 @@ local function AddMainTab(tabName, hasSubTabs)
             end
             
             tabObj.Expanded = not tabObj.Expanded
-            local targetHeight = tabObj.Expanded and (#tabObj.SubTabs * 30) or 0
+            local targetHeight = tabObj.Expanded and (#tabObj.SubTabs * 28) or 0
             TweenService:Create(subContainer, SMOOTH_TWEEN, {Size = UDim2.new(1, 0, 0, targetHeight)}):Play()
             
             if tabObj.Expanded and #tabObj.SubTabs > 0 then
@@ -780,20 +748,20 @@ end
 
 local function AddSubTab(parentTab, subName)
     local subBtn = Instance.new("TextButton")
-    subBtn.Size = UDim2.new(1, 0, 0, 30)
-    subBtn.BackgroundColor3 = Color3.fromRGB(16, 16, 22)
+    subBtn.Size = UDim2.new(1, 0, 0, 28)
+    subBtn.BackgroundColor3 = Color3.fromRGB(12, 12, 16)
     subBtn.BackgroundTransparency = 1
     subBtn.BorderSizePixel = 0
     subBtn.Text = "          " .. subName
-    subBtn.TextColor3 = Color3.fromRGB(100, 100, 110)
+    subBtn.TextColor3 = Color3.fromRGB(100, 100, 115)
     subBtn.Font = Enum.Font.GothamMedium
-    subBtn.TextSize = 11
+    subBtn.TextSize = 10.5
     subBtn.TextXAlignment = Enum.TextXAlignment.Left
     subBtn.Parent = parentTab.SubContainer
 
     local indicator = Instance.new("Frame")
-    indicator.Size = UDim2.new(0, 3, 1, -12)
-    indicator.Position = UDim2.new(0, 10, 0, 6)
+    indicator.Size = UDim2.new(0, 3, 1, -10)
+    indicator.Position = UDim2.new(0, 10, 0, 5)
     indicator.BackgroundColor3 = ACCENT_COLOR
     indicator.BorderSizePixel = 0
     indicator.Visible = false
@@ -821,7 +789,7 @@ local function AddSubTab(parentTab, subName)
 end
 
 -- ==========================================
--- TABS STRUCTURING (Без эмодзи, только чистые стикеры-вкладки)
+-- TABS STRUCTURING
 -- ==========================================
 
 local tabMain = AddMainTab("Main", true)
@@ -839,7 +807,7 @@ local tabMisc = AddMainTab("Miscellaneous", false)
 local tabSetting = AddMainTab("Setting", false)
 
 tabMain.Expanded = true
-tabMain.SubContainer.Size = UDim2.new(1, 0, 0, #tabMain.SubTabs * 30)
+tabMain.SubContainer.Size = UDim2.new(1, 0, 0, #tabMain.SubTabs * 28)
 pGeneral.Page.Visible = true
 activePageRef = pGeneral
 tabMain.Btn.TextColor3 = ACCENT_COLOR
@@ -1075,7 +1043,7 @@ pEnemy:AddToggle("Role ESP", false, function(state)
                     for _, plr in ipairs(Players:GetPlayers()) do
                         if plr ~= LocalPlayer and plr.Character and not plr.Character:FindFirstChild("MM2RoleESP") then
                             local color = Color3.fromRGB(0, 255, 100)
-                            if plr == GetMurderer() then color = Color3.fromRGB(255, 0, 50)
+                            if plr == GetMurderer() then color = Color3.fromRGB(255, 50, 50)
                             elseif plr == GetSheriff() then color = ACCENT_COLOR end
                             local hl = Instance.new("Highlight")
                             hl.Name = "MM2RoleESP"
@@ -1130,7 +1098,7 @@ pEnemy:AddToggle("Name ESP", false, function(state)
                 lbl.BackgroundTransparency = 1
                 lbl.Text = plr.Name
                 lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-                lbl.TextSize = 11
+                lbl.TextSize = 10.5
                 lbl.Font = Enum.Font.GothamBold
                 lbl.Parent = bb
                 table.insert(nameTags, bb)
@@ -1184,8 +1152,8 @@ pExtra:AddToggle("Tracer to Murderer", false, function(state)
     if state then
         tracerAdornment = Instance.new("LineHandleAdornment")
         tracerAdornment.Name = "MurdererTracer"
-        tracerAdornment.Color3 = Color3.fromRGB(255, 0, 0)
-        tracerAdornment.Thickness = 3
+        tracerAdornment.Color3 = Color3.fromRGB(255, 50, 50)
+        tracerAdornment.Thickness = 2.5
         tracerAdornment.AlwaysOnTop = true
         tracerAdornment.Adornee = Workspace
         tracerConn = RunService.RenderStepped:Connect(function()
@@ -1387,7 +1355,7 @@ tabMisc.PageObj:AddToggle("Chat Spammer", false, function(state)
     if state then
         spammerLoop = task.spawn(function()
             while true do
-                if CheckMaster() then ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents"):FindFirstChild("SayMessageRequest"):FireServer("Thorium Lib v2 - Private Build", "All") end
+                if CheckMaster() then ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents"):FindFirstChild("SayMessageRequest"):FireServer("neverlose.cc - superior experience", "All") end
                 task.wait(3)
             end
         end)
@@ -1411,7 +1379,7 @@ local currentFontIdx = 1
 tabSetting.PageObj:AddButton("Cycle UI Font", function(btnRef)
     currentFontIdx = currentFontIdx % #uiFonts + 1
     local selectedFont = uiFonts[currentFontIdx]
-    btnRef.Text = "Cycle Font: " + selectedFont.Name
+    btnRef.Text = "Cycle Font: " .. selectedFont.Name
     for _, obj in ipairs(ScreenGui:GetDescendants()) do
         if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
             pcall(function() obj.Font = selectedFont end)
