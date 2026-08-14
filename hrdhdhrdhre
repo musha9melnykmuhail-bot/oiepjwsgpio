@@ -41,12 +41,12 @@ local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SoundService = game:GetService("SoundService")
 
--- Neverlose V4 Style Palette (Deep dark theme with signature indigo/purple accent and soft smooth corners)
-local ACCENT_COLOR = Color3.fromRGB(115, 103, 240)
-local BG_COLOR = Color3.fromRGB(13, 13, 18)
-local ELEMENT_BG = Color3.fromRGB(18, 18, 25)
-local ELEMENT_HOVER = Color3.fromRGB(24, 24, 34)
-local BORDER_COLOR = Color3.fromRGB(38, 38, 52)
+-- Soft Translucent Bluish Theme Palette
+local ACCENT_COLOR = Color3.fromRGB(115, 125, 245)
+local BG_COLOR = Color3.fromRGB(15, 18, 26)
+local ELEMENT_BG = Color3.fromRGB(22, 27, 40)
+local ELEMENT_HOVER = Color3.fromRGB(30, 37, 56)
+local BORDER_COLOR = Color3.fromRGB(42, 52, 76)
 local SMOOTH_TWEEN = TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
 
 -- Click Sound
@@ -62,7 +62,7 @@ end
 
 local UIBlur = Instance.new("BlurEffect")
 UIBlur.Name = "ThoriumBlurEffect"
-UIBlur.Size = 20
+UIBlur.Size = 16
 UIBlur.Enabled = true
 UIBlur.Parent = Lighting
 table.insert(activeCleanups, function() if UIBlur then UIBlur:Destroy() end end)
@@ -75,15 +75,15 @@ local success, _ = pcall(function() ScreenGui.Parent = CoreGui end)
 if not success then ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
 
 -- ==========================================
--- MAIN FRAME & MOBILE BUTTON (Soft Corners)
+-- MAIN FRAME & MOBILE BUTTON (Soft Translucent)
 -- ==========================================
 
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 580, 0, 380)
-MainFrame.Position = UDim2.new(0.5, -290, 0.5, -190)
+MainFrame.Size = UDim2.new(0, 600, 0, 400)
+MainFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
 MainFrame.BackgroundColor3 = BG_COLOR
-MainFrame.BackgroundTransparency = 0.05
+MainFrame.BackgroundTransparency = 0.12
 MainFrame.BorderSizePixel = 0
 MainFrame.ClipsDescendants = true
 MainFrame.Active = true
@@ -95,12 +95,13 @@ MainFrameScale.Scale = 1.0
 MainFrameScale.Parent = MainFrame
 
 local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 12) -- Soft rounded corners
-MainFrame.Parent = ScreenGui
+MainCorner.CornerRadius = UDim.new(0, 12)
+MainCorner.Parent = MainFrame
 
 local MainStroke = Instance.new("UIStroke")
 MainStroke.Color = BORDER_COLOR
-MainStroke.Thickness = 1
+MainStroke.Thickness = 1.2
+MainStroke.Transparency = 0.3
 MainStroke.Parent = MainFrame
 
 local MobileToggleBtn = Instance.new("TextButton")
@@ -109,8 +110,8 @@ MobileToggleBtn.AnchorPoint = Vector2.new(0.5, 0.5)
 MobileToggleBtn.Size = UDim2.new(0, 48, 0, 48)
 MobileToggleBtn.Position = UDim2.new(0.05, 25, 0.2, 25)
 MobileToggleBtn.BackgroundColor3 = BG_COLOR
-MobileToggleBtn.BackgroundTransparency = 0.1
-MobileToggleBtn.Text = "NL"
+MobileToggleBtn.BackgroundTransparency = 0.15
+MobileToggleBtn.Text = "TH"
 MobileToggleBtn.TextColor3 = ACCENT_COLOR
 MobileToggleBtn.Font = Enum.Font.GothamBold
 MobileToggleBtn.TextSize = 14
@@ -154,8 +155,8 @@ end)
 local TopNotch = Instance.new("Frame")
 TopNotch.Name = "TopNotch"
 TopNotch.Size = UDim2.new(1, 0, 0, 42)
-TopNotch.BackgroundColor3 = Color3.fromRGB(10, 10, 14)
-TopNotch.BackgroundTransparency = 0.1
+TopNotch.BackgroundColor3 = Color3.fromRGB(12, 14, 21)
+TopNotch.BackgroundTransparency = 0.15
 TopNotch.BorderSizePixel = 0
 TopNotch.ZIndex = 5
 TopNotch.Parent = MainFrame
@@ -164,6 +165,7 @@ local TopNotchLine = Instance.new("Frame")
 TopNotchLine.Size = UDim2.new(1, 0, 0, 1)
 TopNotchLine.Position = UDim2.new(0, 0, 1, 0)
 TopNotchLine.BackgroundColor3 = BORDER_COLOR
+TopNotchLine.BackgroundTransparency = 0.5
 TopNotchLine.BorderSizePixel = 0
 TopNotchLine.Parent = TopNotch
 
@@ -171,8 +173,8 @@ local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(0, 180, 1, 0)
 Title.Position = UDim2.new(0, 15, 0, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "neverlose.cc"
-Title.TextColor3 = Color3.fromRGB(240, 240, 255)
+Title.Text = "thorium.cc"
+Title.TextColor3 = Color3.fromRGB(240, 242, 255)
 Title.TextSize = 13
 Title.Font = Enum.Font.GothamBold
 Title.TextXAlignment = Enum.TextXAlignment.Left
@@ -186,7 +188,7 @@ local MSContainer = Instance.new("Frame")
 MSContainer.Size = UDim2.new(0, 135, 0, 26)
 MSContainer.Position = UDim2.new(0, 140, 0.5, -13)
 MSContainer.BackgroundColor3 = ELEMENT_BG
-MSContainer.BackgroundTransparency = 0.2
+MSContainer.BackgroundTransparency = 0.3
 MSContainer.ZIndex = 6
 MSContainer.Parent = TopNotch
 
@@ -199,7 +201,7 @@ MSLabel.Size = UDim2.new(1, -36, 1, 0)
 MSLabel.Position = UDim2.new(0, 8, 0, 0)
 MSLabel.BackgroundTransparency = 1
 MSLabel.Text = "Master Switch"
-MSLabel.TextColor3 = Color3.fromRGB(180, 180, 195)
+MSLabel.TextColor3 = Color3.fromRGB(180, 185, 205)
 MSLabel.Font = Enum.Font.GothamMedium
 MSLabel.TextSize = 10
 MSLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -233,7 +235,7 @@ MSBtn.MouseButton1Click:Connect(function()
     PlayClickSound()
     getgenv().Thorium_MasterSwitch = not getgenv().Thorium_MasterSwitch
     local enabled = getgenv().Thorium_MasterSwitch
-    TweenService:Create(MSBtn, SMOOTH_TWEEN, {BackgroundColor3 = enabled and ACCENT_COLOR or Color3.fromRGB(40, 40, 52)}):Play()
+    TweenService:Create(MSBtn, SMOOTH_TWEEN, {BackgroundColor3 = enabled and ACCENT_COLOR or Color3.fromRGB(40, 45, 60)}):Play()
     TweenService:Create(MSCircle, SMOOTH_TWEEN, {Position = enabled and UDim2.new(1, -12, 0.5, -5) or UDim2.new(0, 2, 0.5, -5)}):Play()
 end)
 
@@ -250,10 +252,11 @@ local SearchBox = Instance.new("TextBox")
 SearchBox.Size = UDim2.new(1, -26, 1, 0)
 SearchBox.Position = UDim2.new(0, 0, 0, 0)
 SearchBox.BackgroundColor3 = ELEMENT_BG
+SearchBox.BackgroundTransparency = 0.2
 SearchBox.PlaceholderText = "Search..."
 SearchBox.Text = ""
 SearchBox.TextColor3 = Color3.fromRGB(240, 240, 255)
-SearchBox.PlaceholderColor3 = Color3.fromRGB(120, 120, 140)
+SearchBox.PlaceholderColor3 = Color3.fromRGB(120, 125, 145)
 SearchBox.Font = Enum.Font.GothamMedium
 SearchBox.TextSize = 11
 SearchBox.Visible = false
@@ -275,7 +278,7 @@ SearchIconImg.Size = UDim2.new(0, 13, 0, 13)
 SearchIconImg.Position = UDim2.new(0.5, -6, 0.5, -6)
 SearchIconImg.BackgroundTransparency = 1
 SearchIconImg.Image = "rbxassetid://11419713964"
-SearchIconImg.ImageColor3 = Color3.fromRGB(180, 180, 195)
+SearchIconImg.ImageColor3 = Color3.fromRGB(180, 185, 205)
 SearchIconImg.ZIndex = 6
 SearchIconImg.Parent = SearchIconBtn
 
@@ -292,13 +295,213 @@ SearchIconBtn.MouseButton1Click:Connect(function()
 end)
 
 -- ==========================================
--- SIDEBAR & PROFILE (Watermark completely removed)
+-- IMGUI-STYLE COLOR PICKER MODAL WIDGET
+-- ==========================================
+local ColorPickerWindow = Instance.new("Frame")
+ColorPickerWindow.Name = "ColorPickerWindow"
+ColorPickerWindow.Size = UDim2.new(0, 200, 0, 210)
+ColorPickerWindow.Position = UDim2.new(0.5, -100, 0.5, -105)
+ColorPickerWindow.BackgroundColor3 = Color3.fromRGB(18, 22, 32)
+ColorPickerWindow.BackgroundTransparency = 0.05
+ColorPickerWindow.BorderSizePixel = 0
+ColorPickerWindow.Visible = false
+ColorPickerWindow.ZIndex = 200
+ColorPickerWindow.Parent = ScreenGui
+
+Instance.new("UICorner", ColorPickerWindow).CornerRadius = UDim.new(0, 10)
+local CPStroke = Instance.new("UIStroke")
+CPStroke.Color = BORDER_COLOR
+CPStroke.Thickness = 1.2
+CPStroke.Parent = ColorPickerWindow
+
+local CPTitle = Instance.new("TextLabel")
+CPTitle.Size = UDim2.new(1, -30, 0, 28)
+CPTitle.Position = UDim2.new(0, 10, 0, 2)
+CPTitle.BackgroundTransparency = 1
+CPTitle.Text = "Color Picker"
+CPTitle.TextColor3 = Color3.fromRGB(240, 240, 255)
+CPTitle.Font = Enum.Font.GothamBold
+CPTitle.TextSize = 11
+CPTitle.TextXAlignment = Enum.TextXAlignment.Left
+CPTitle.ZIndex = 201
+CPTitle.Parent = ColorPickerWindow
+
+local CPClose = Instance.new("TextButton")
+CPClose.Size = UDim2.new(0, 20, 0, 20)
+CPClose.Position = UDim2.new(1, -25, 0, 6)
+CPClose.BackgroundTransparency = 1
+CPClose.Text = "✕"
+CPClose.TextColor3 = Color3.fromRGB(180, 180, 195)
+CPClose.Font = Enum.Font.GothamBold
+CPClose.TextSize = 12
+CPClose.ZIndex = 201
+CPClose.Parent = ColorPickerWindow
+
+CPClose.MouseButton1Click:Connect(function()
+    PlayClickSound()
+    ColorPickerWindow.Visible = false
+end)
+
+local PreviewBox = Instance.new("Frame")
+PreviewBox.Size = UDim2.new(1, -20, 0, 22)
+PreviewBox.Position = UDim2.new(0, 10, 0, 32)
+PreviewBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+PreviewBox.BorderSizePixel = 0
+PreviewBox.ZIndex = 201
+PreviewBox.Parent = ColorPickerWindow
+Instance.new("UICorner", PreviewBox).CornerRadius = UDim.new(0, 6)
+
+local activeCPCallback = nil
+local activeCPColor = Color3.fromRGB(255, 255, 255)
+local activeCPAlpha = 0
+
+local function CreateCPSlider(posY, labelText, minVal, maxVal, defaultVal, isAlpha)
+    local sliderFrame = Instance.new("Frame")
+    sliderFrame.Size = UDim2.new(1, -20, 0, 32)
+    sliderFrame.Position = UDim2.new(0, 10, 0, posY)
+    sliderFrame.BackgroundTransparency = 1
+    sliderFrame.ZIndex = 201
+    sliderFrame.Parent = ColorPickerWindow
+
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(0.4, 0, 0, 14)
+    lbl.Position = UDim2.new(0, 0, 0, 0)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = labelText
+    lbl.TextColor3 = Color3.fromRGB(180, 185, 205)
+    lbl.Font = Enum.Font.GothamMedium
+    lbl.TextSize = 10
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.ZIndex = 201
+    lbl.Parent = sliderFrame
+
+    local valLbl = Instance.new("TextLabel")
+    valLbl.Size = UDim2.new(0.6, 0, 0, 14)
+    valLbl.Position = UDim2.new(0.4, 0, 0, 0)
+    valLbl.BackgroundTransparency = 1
+    valLbl.Text = tostring(defaultVal)
+    valLbl.TextColor3 = ACCENT_COLOR
+    valLbl.Font = Enum.Font.GothamMedium
+    valLbl.TextSize = 10
+    valLbl.TextXAlignment = Enum.TextXAlignment.Right
+    valLbl.ZIndex = 201
+    valLbl.Parent = sliderFrame
+
+    local track = Instance.new("Frame")
+    track.Size = UDim2.new(1, 0, 0, 4)
+    track.Position = UDim2.new(0, 0, 1, -8)
+    track.BackgroundColor3 = Color3.fromRGB(35, 40, 58)
+    track.BorderSizePixel = 0
+    track.ZIndex = 201
+    track.Parent = sliderFrame
+    Instance.new("UICorner", track).CornerRadius = UDim.new(1, 0)
+
+    local fill = Instance.new("Frame")
+    fill.Size = UDim2.new((defaultVal - minVal)/(maxVal - minVal), 0, 1, 0)
+    fill.BackgroundColor3 = ACCENT_COLOR
+    fill.BorderSizePixel = 0
+    fill.ZIndex = 201
+    fill.Parent = track
+    Instance.new("UICorner", fill).CornerRadius = UDim.new(1, 0)
+
+    local trigger = Instance.new("TextButton")
+    trigger.Size = UDim2.new(1, 0, 1, 0)
+    trigger.BackgroundTransparency = 1
+    trigger.Text = ""
+    trigger.ZIndex = 202
+    trigger.Parent = sliderFrame
+
+    local function updateVal(inputVal)
+        valLbl.Text = tostring(inputVal)
+        fill.Size = UDim2.new((inputVal - minVal)/(maxVal - minVal), 0, 1, 0)
+    end
+
+    return {
+        Frame = sliderFrame,
+        Track = track,
+        Trigger = trigger,
+        UpdateVal = updateVal,
+        Min = minVal,
+        Max = maxVal
+    }
+end
+
+local rSlider = CreateCPSlider(60, "Red", 0, 255, 255, false)
+local gSlider = CreateCPSlider(95, "Green", 0, 255, 255, false)
+local bSlider = CreateCPSlider(130, "Blue", 0, 255, 255, false)
+local aSlider = CreateCPSlider(165, "Transparency", 0, 100, 0, true)
+
+local currentR, currentG, currentB, currentA = 255, 255, 255, 0
+
+local function UpdateColorFromSliders()
+    activeCPColor = Color3.fromRGB(currentR, currentG, currentB)
+    activeCPAlpha = currentA / 100
+    PreviewBox.BackgroundColor3 = activeCPColor
+    PreviewBox.BackgroundTransparency = activeCPAlpha
+    if activeCPCallback then
+        task.spawn(activeCPCallback, activeCPColor, activeCPAlpha)
+    end
+end
+
+local function BindCPSlider(sliderObj, setter)
+    local dragging = false
+    local function process(input)
+        local posX = math.clamp((input.Position.X - sliderObj.Track.AbsolutePosition.X) / sliderObj.Track.AbsoluteSize.X, 0, 1)
+        local val = math.floor(sliderObj.Min + (sliderObj.Max - sliderObj.Min) * posX)
+        sliderObj.UpdateVal(val)
+        setter(val)
+        UpdateColorFromSliders()
+    end
+
+    sliderObj.Trigger.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            process(input)
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            process(input)
+        end
+    end)
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+end
+
+BindCPSlider(rSlider, function(v) currentR = v end)
+BindCPSlider(gSlider, function(v) currentG = v end)
+BindCPSlider(bSlider, function(v) currentB = v end)
+BindCPSlider(aSlider, function(v) currentA = v end)
+
+local function OpenColorPicker(titleText, defaultColor, defaultAlpha, callback)
+    CPTitle.Text = titleText or "Color Picker"
+    currentR = math.floor(defaultColor.R * 255)
+    currentG = math.floor(defaultColor.G * 255)
+    currentB = math.floor(defaultColor.B * 255)
+    currentA = math.floor((defaultAlpha or 0) * 100)
+
+    rSlider.UpdateVal(currentR)
+    gSlider.UpdateVal(currentG)
+    bSlider.UpdateVal(currentB)
+    aSlider.UpdateVal(currentA)
+
+    activeCPCallback = callback
+    UpdateColorFromSliders()
+
+    ColorPickerWindow.Visible = true
+end
+
+-- ==========================================
+-- SIDEBAR & PROFILE
 -- ==========================================
 local Sidebar = Instance.new("ScrollingFrame")
 Sidebar.Name = "Sidebar"
-Sidebar.Size = UDim2.new(0, 145, 1, -95)
+Sidebar.Size = UDim2.new(0, 155, 1, -94)
 Sidebar.Position = UDim2.new(0, 0, 0, 42)
-Sidebar.BackgroundColor3 = Color3.fromRGB(10, 10, 14)
+Sidebar.BackgroundColor3 = Color3.fromRGB(12, 14, 21)
 Sidebar.BackgroundTransparency = 0.2
 Sidebar.BorderSizePixel = 0
 Sidebar.ScrollBarThickness = 0
@@ -306,18 +509,18 @@ Sidebar.Parent = MainFrame
 
 local SidebarLayout = Instance.new("UIListLayout")
 SidebarLayout.SortOrder = Enum.SortOrder.LayoutOrder
-SidebarLayout.Padding = UDim.new(0, 3)
+SidebarLayout.Padding = UDim.new(0, 2)
 SidebarLayout.Parent = Sidebar
 
 SidebarLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
     Sidebar.CanvasSize = UDim2.new(0, 0, 0, SidebarLayout.AbsoluteContentSize.Y + 10)
 end)
 
--- Clean Profile Tab (No watermark functionality or elements whatsoever)
 local ProfileBtn = Instance.new("TextButton")
-ProfileBtn.Size = UDim2.new(0, 145, 0, 52)
+ProfileBtn.Size = UDim2.new(0, 155, 0, 52)
 ProfileBtn.Position = UDim2.new(0, 0, 1, -52)
-ProfileBtn.BackgroundColor3 = Color3.fromRGB(10, 10, 14)
+ProfileBtn.BackgroundColor3 = Color3.fromRGB(12, 14, 21)
+ProfileBtn.BackgroundTransparency = 0.15
 ProfileBtn.BorderSizePixel = 0
 ProfileBtn.Text = ""
 ProfileBtn.AutoButtonColor = false
@@ -327,14 +530,15 @@ local ProfileLine = Instance.new("Frame")
 ProfileLine.Size = UDim2.new(1, 0, 0, 1)
 ProfileLine.Position = UDim2.new(0, 0, 0, 0)
 ProfileLine.BackgroundColor3 = BORDER_COLOR
+ProfileLine.BackgroundTransparency = 0.5
 ProfileLine.BorderSizePixel = 0
 ProfileLine.Parent = ProfileBtn
 
 local Nickname = Instance.new("TextLabel")
-Nickname.Size = UDim2.new(0, 125, 0, 14)
+Nickname.Size = UDim2.new(0, 135, 0, 14)
 Nickname.Position = UDim2.new(0, 12, 0, 12)
 Nickname.BackgroundTransparency = 1
-Nickname.Text = "Tester"
+Nickname.Text = "Thorium User"
 Nickname.TextColor3 = Color3.fromRGB(240, 240, 255)
 Nickname.Font = Enum.Font.GothamBold
 Nickname.TextSize = 11
@@ -342,10 +546,10 @@ Nickname.TextXAlignment = Enum.TextXAlignment.Left
 Nickname.Parent = ProfileBtn
 
 local Role = Instance.new("TextLabel")
-Role.Size = UDim2.new(0, 125, 0, 14)
+Role.Size = UDim2.new(0, 135, 0, 14)
 Role.Position = UDim2.new(0, 12, 0, 26)
 Role.BackgroundTransparency = 1
-Role.Text = "Neverlose User"
+Role.Text = "Premium Access"
 Role.TextColor3 = ACCENT_COLOR
 Role.Font = Enum.Font.GothamMedium
 Role.TextSize = 9
@@ -353,16 +557,16 @@ Role.TextXAlignment = Enum.TextXAlignment.Left
 Role.Parent = ProfileBtn
 
 ProfileBtn.MouseEnter:Connect(function()
-    TweenService:Create(ProfileBtn, SMOOTH_TWEEN, {BackgroundColor3 = Color3.fromRGB(15, 15, 20)}):Play()
+    TweenService:Create(ProfileBtn, SMOOTH_TWEEN, {BackgroundColor3 = Color3.fromRGB(18, 22, 32)}):Play()
 end)
 ProfileBtn.MouseLeave:Connect(function()
-    TweenService:Create(ProfileBtn, SMOOTH_TWEEN, {BackgroundColor3 = Color3.fromRGB(10, 10, 14)}):Play()
+    TweenService:Create(ProfileBtn, SMOOTH_TWEEN, {BackgroundColor3 = Color3.fromRGB(12, 14, 21)}):Play()
 end)
 
 local ContentArea = Instance.new("Frame")
 ContentArea.Name = "ContentArea"
-ContentArea.Size = UDim2.new(1, -145, 1, -42)
-ContentArea.Position = UDim2.new(0, 145, 0, 42)
+ContentArea.Size = UDim2.new(1, -155, 1, -42)
+ContentArea.Position = UDim2.new(0, 155, 0, 42)
 ContentArea.BackgroundTransparency = 1
 ContentArea.Parent = MainFrame
 
@@ -370,10 +574,11 @@ local ContentLine = Instance.new("Frame")
 ContentLine.Size = UDim2.new(0, 1, 1, 0)
 ContentLine.Position = UDim2.new(0, 0, 0, 0)
 ContentLine.BackgroundColor3 = BORDER_COLOR
+ContentLine.BackgroundTransparency = 0.5
 ContentLine.BorderSizePixel = 0
 ContentLine.Parent = ContentArea
 
--- Dragging (Strictly via TopNotch)
+-- Dragging (Via TopNotch)
 local dragging, dragInput, dragStart, startPos
 TopNotch.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -412,17 +617,11 @@ local activePageRef = nil
 
 local function HideAllPages()
     for _, tabData in ipairs(TabsList) do
-        if tabData.Type == "MainWithSub" then
-            TweenService:Create(tabData.Btn, SMOOTH_TWEEN, {TextColor3 = Color3.fromRGB(140, 140, 155)}):Play()
-            for _, sub in ipairs(tabData.SubTabs) do
-                sub.Page.Visible = false
-                TweenService:Create(sub.Btn, SMOOTH_TWEEN, {TextColor3 = Color3.fromRGB(100, 100, 115)}):Play()
-                if sub.Indicator then sub.Indicator.Visible = false end
-            end
-        elseif tabData.Type == "Direct" then
-            tabData.Page.Visible = false
-            TweenService:Create(tabData.Btn, SMOOTH_TWEEN, {TextColor3 = Color3.fromRGB(140, 140, 155)}):Play()
-            if tabData.Indicator then tabData.Indicator.Visible = false end
+        TweenService:Create(tabData.Btn, SMOOTH_TWEEN, {TextColor3 = Color3.fromRGB(140, 145, 165)}):Play()
+        for _, sub in ipairs(tabData.SubTabs) do
+            sub.Page.Visible = false
+            TweenService:Create(sub.Btn, SMOOTH_TWEEN, {TextColor3 = Color3.fromRGB(110, 115, 135)}):Play()
+            if sub.Indicator then sub.Indicator.Visible = false end
         end
     end
 end
@@ -471,23 +670,27 @@ local function BuildTabObj(pageData)
         return (self.ItemCount % 2 == 1) and self.Left or self.Right
     end
 
-    function obj:AddToggle(text, default, callback)
+    function obj:AddToggle(text, default, callback, defaultColor, colorCallback)
         local target = self:GetNextParent()
         local state = default or false
 
         local frame = Instance.new("Frame")
         frame.Size = UDim2.new(1, -8, 0, 32)
         frame.BackgroundColor3 = ELEMENT_BG
+        frame.BackgroundTransparency = 0.2
         frame.BorderSizePixel = 0
         frame.Parent = target
-        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8) -- Soft smooth corners
+        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+
+        local hasColor = (defaultColor ~= nil)
+        local lblTextWidth = hasColor and -70 or -45
 
         local lbl = Instance.new("TextLabel")
-        lbl.Size = UDim2.new(1, -45, 1, 0)
+        lbl.Size = UDim2.new(1, lblTextWidth, 1, 0)
         lbl.Position = UDim2.new(0, 10, 0, 0)
         lbl.BackgroundTransparency = 1
         lbl.Text = text
-        lbl.TextColor3 = Color3.fromRGB(200, 200, 215)
+        lbl.TextColor3 = Color3.fromRGB(205, 210, 225)
         lbl.Font = Enum.Font.GothamMedium
         lbl.TextSize = 10.5
         lbl.TextXAlignment = Enum.TextXAlignment.Left
@@ -495,8 +698,8 @@ local function BuildTabObj(pageData)
 
         local btn = Instance.new("TextButton")
         btn.Size = UDim2.new(0, 28, 0, 14)
-        btn.Position = UDim2.new(1, -36, 0.5, -7)
-        btn.BackgroundColor3 = state and ACCENT_COLOR or Color3.fromRGB(40, 40, 52)
+        btn.Position = UDim2.new(1, -34, 0.5, -7)
+        btn.BackgroundColor3 = state and ACCENT_COLOR or Color3.fromRGB(40, 45, 60)
         btn.Text = ""
         btn.Parent = frame
         Instance.new("UICorner", btn).CornerRadius = UDim.new(1, 0)
@@ -511,10 +714,29 @@ local function BuildTabObj(pageData)
         btn.MouseButton1Click:Connect(function()
             PlayClickSound()
             state = not state
-            TweenService:Create(btn, SMOOTH_TWEEN, {BackgroundColor3 = state and ACCENT_COLOR or Color3.fromRGB(40, 40, 52)}):Play()
+            TweenService:Create(btn, SMOOTH_TWEEN, {BackgroundColor3 = state and ACCENT_COLOR or Color3.fromRGB(40, 45, 60)}):Play()
             TweenService:Create(circle, SMOOTH_TWEEN, {Position = state and UDim2.new(1, -12, 0.5, -5) or UDim2.new(0, 2, 0.5, -5)}):Play()
             task.spawn(callback, state)
         end)
+
+        if hasColor then
+            local colorBtn = Instance.new("TextButton")
+            colorBtn.Size = UDim2.new(0, 18, 0, 14)
+            colorBtn.Position = UDim2.new(1, -58, 0.5, -7)
+            colorBtn.BackgroundColor3 = defaultColor
+            colorBtn.Text = ""
+            colorBtn.Parent = frame
+            Instance.new("UICorner", colorBtn).CornerRadius = UDim.new(0, 4)
+
+            colorBtn.MouseButton1Click:Connect(function()
+                PlayClickSound()
+                OpenColorPicker(text .. " Color", defaultColor, 0, function(newCol, newAlpha)
+                    colorBtn.BackgroundColor3 = newCol
+                    colorBtn.BackgroundTransparency = newAlpha
+                    if colorCallback then task.spawn(colorCallback, newCol, newAlpha) end
+                end)
+            end)
+        end
 
         frame.MouseEnter:Connect(function() TweenService:Create(frame, SMOOTH_TWEEN, {BackgroundColor3 = ELEMENT_HOVER}):Play() end)
         frame.MouseLeave:Connect(function() TweenService:Create(frame, SMOOTH_TWEEN, {BackgroundColor3 = ELEMENT_BG}):Play() end)
@@ -529,6 +751,7 @@ local function BuildTabObj(pageData)
         local frame = Instance.new("Frame")
         frame.Size = UDim2.new(1, -8, 0, 42)
         frame.BackgroundColor3 = ELEMENT_BG
+        frame.BackgroundTransparency = 0.2
         frame.BorderSizePixel = 0
         frame.Parent = target
         Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
@@ -538,7 +761,7 @@ local function BuildTabObj(pageData)
         lbl.Position = UDim2.new(0, 10, 0, 4)
         lbl.BackgroundTransparency = 1
         lbl.Text = text
-        lbl.TextColor3 = Color3.fromRGB(200, 200, 215)
+        lbl.TextColor3 = Color3.fromRGB(205, 210, 225)
         lbl.Font = Enum.Font.GothamMedium
         lbl.TextSize = 10.5
         lbl.TextXAlignment = Enum.TextXAlignment.Left
@@ -558,7 +781,7 @@ local function BuildTabObj(pageData)
         local track = Instance.new("Frame")
         track.Size = UDim2.new(1, -20, 0, 4)
         track.Position = UDim2.new(0, 10, 1, -11)
-        track.BackgroundColor3 = Color3.fromRGB(35, 35, 48)
+        track.BackgroundColor3 = Color3.fromRGB(35, 40, 58)
         track.BorderSizePixel = 0
         track.Parent = frame
         Instance.new("UICorner", track).CornerRadius = UDim.new(1, 0)
@@ -615,6 +838,7 @@ local function BuildTabObj(pageData)
         local frame = Instance.new("Frame")
         frame.Size = UDim2.new(1, -8, 0, 30)
         frame.BackgroundColor3 = ELEMENT_BG
+        frame.BackgroundTransparency = 0.2
         frame.BorderSizePixel = 0
         frame.Parent = target
         Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
@@ -623,7 +847,7 @@ local function BuildTabObj(pageData)
         btn.Size = UDim2.new(1, 0, 1, 0)
         btn.BackgroundTransparency = 1
         btn.Text = text
-        btn.TextColor3 = Color3.fromRGB(200, 200, 215)
+        btn.TextColor3 = Color3.fromRGB(205, 210, 225)
         btn.Font = Enum.Font.GothamMedium
         btn.TextSize = 10.5
         btn.Parent = frame
@@ -657,90 +881,58 @@ SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
     end
 end)
 
-local function AddMainTab(tabName, hasSubTabs)
-    local tabObj = {Name = tabName, Type = hasSubTabs and "MainWithSub" or "Direct", SubTabs = {}}
+local function AddMainTab(tabName)
+    local tabObj = {Name = tabName, SubTabs = {}}
 
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, 0, 0, 36)
-    btn.BackgroundColor3 = Color3.fromRGB(10, 10, 14)
+    btn.Size = UDim2.new(1, 0, 0, 34)
+    btn.BackgroundColor3 = Color3.fromRGB(12, 14, 21)
     btn.BackgroundTransparency = 1
     btn.BorderSizePixel = 0
-    btn.Text = "      " .. tabName
-    btn.TextColor3 = Color3.fromRGB(140, 140, 155)
+    btn.Text = "      📂 " .. tabName
+    btn.TextColor3 = Color3.fromRGB(140, 145, 165)
     btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 11.5
+    btn.TextSize = 11
     btn.TextXAlignment = Enum.TextXAlignment.Left
     btn.Parent = Sidebar
     tabObj.Btn = btn
 
-    if not hasSubTabs then
-        local indicator = Instance.new("Frame")
-        indicator.Size = UDim2.new(0, 3, 1, -12)
-        indicator.Position = UDim2.new(0, 0, 0, 6)
-        indicator.BackgroundColor3 = ACCENT_COLOR
-        indicator.BorderSizePixel = 0
-        indicator.Visible = false
-        indicator.Parent = btn
-        tabObj.Indicator = indicator
-        Instance.new("UICorner", indicator).CornerRadius = UDim.new(1, 0)
+    local subContainer = Instance.new("Frame")
+    subContainer.Size = UDim2.new(1, 0, 0, 0)
+    subContainer.BackgroundTransparency = 1
+    subContainer.ClipsDescendants = true
+    subContainer.Parent = Sidebar
+    
+    local subLayout = Instance.new("UIListLayout")
+    subLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    subLayout.Parent = subContainer
 
-        local pageData = CreateContentPage(tabName)
-        tabObj.Page = pageData.Page
-        tabObj.PageObj = BuildTabObj(pageData)
+    tabObj.SubContainer = subContainer
+    tabObj.Expanded = false
 
-        btn.MouseButton1Click:Connect(function()
-            PlayClickSound()
-            HideAllPages()
-            activePageRef = tabObj.PageObj
-            tabObj.Page.Visible = true
-            TweenService:Create(btn, SMOOTH_TWEEN, {TextColor3 = ACCENT_COLOR}):Play()
-            indicator.Visible = true
-
-            for _, t in ipairs(TabsList) do
-                if t.Type == "MainWithSub" and t.Expanded then
-                    t.Expanded = false
-                    TweenService:Create(t.SubContainer, SMOOTH_TWEEN, {Size = UDim2.new(1, 0, 0, 0)}):Play()
-                end
+    btn.MouseButton1Click:Connect(function()
+        PlayClickSound()
+        for _, t in ipairs(TabsList) do
+            if t ~= tabObj and t.Expanded then
+                t.Expanded = false
+                TweenService:Create(t.SubContainer, SMOOTH_TWEEN, {Size = UDim2.new(1, 0, 0, 0)}):Play()
             end
-        end)
-    else
-        local subContainer = Instance.new("Frame")
-        subContainer.Size = UDim2.new(1, 0, 0, 0)
-        subContainer.BackgroundTransparency = 1
-        subContainer.ClipsDescendants = true
-        subContainer.Parent = Sidebar
+        end
         
-        local subLayout = Instance.new("UIListLayout")
-        subLayout.SortOrder = Enum.SortOrder.LayoutOrder
-        subLayout.Parent = subContainer
-
-        tabObj.SubContainer = subContainer
-        tabObj.Expanded = false
-
-        btn.MouseButton1Click:Connect(function()
-            PlayClickSound()
-            for _, t in ipairs(TabsList) do
-                if t ~= tabObj and t.Type == "MainWithSub" and t.Expanded then
-                    t.Expanded = false
-                    TweenService:Create(t.SubContainer, SMOOTH_TWEEN, {Size = UDim2.new(1, 0, 0, 0)}):Play()
-                end
-            end
+        tabObj.Expanded = not tabObj.Expanded
+        local targetHeight = tabObj.Expanded and (#tabObj.SubTabs * 26) or 0
+        TweenService:Create(subContainer, SMOOTH_TWEEN, {Size = UDim2.new(1, 0, 0, targetHeight)}):Play()
+        
+        if tabObj.Expanded and #tabObj.SubTabs > 0 then
+            HideAllPages()
+            activePageRef = tabObj.SubTabs[1].PageObj
+            tabObj.SubTabs[1].Page.Visible = true
+            TweenService:Create(tabObj.Btn, SMOOTH_TWEEN, {TextColor3 = ACCENT_COLOR}):Play()
             
-            tabObj.Expanded = not tabObj.Expanded
-            local targetHeight = tabObj.Expanded and (#tabObj.SubTabs * 28) or 0
-            TweenService:Create(subContainer, SMOOTH_TWEEN, {Size = UDim2.new(1, 0, 0, targetHeight)}):Play()
-            
-            if tabObj.Expanded and #tabObj.SubTabs > 0 then
-                HideAllPages()
-                activePageRef = tabObj.SubTabs[1].PageObj
-                tabObj.SubTabs[1].Page.Visible = true
-                TweenService:Create(tabObj.Btn, SMOOTH_TWEEN, {TextColor3 = ACCENT_COLOR}):Play()
-                
-                TweenService:Create(tabObj.SubTabs[1].Btn, SMOOTH_TWEEN, {TextColor3 = ACCENT_COLOR}):Play()
-                tabObj.SubTabs[1].Indicator.Visible = true
-            end
-        end)
-    end
+            TweenService:Create(tabObj.SubTabs[1].Btn, SMOOTH_TWEEN, {TextColor3 = ACCENT_COLOR}):Play()
+            tabObj.SubTabs[1].Indicator.Visible = true
+        end
+    end)
 
     table.insert(TabsList, tabObj)
     return tabObj
@@ -748,20 +940,20 @@ end
 
 local function AddSubTab(parentTab, subName)
     local subBtn = Instance.new("TextButton")
-    subBtn.Size = UDim2.new(1, 0, 0, 28)
-    subBtn.BackgroundColor3 = Color3.fromRGB(12, 12, 16)
+    subBtn.Size = UDim2.new(1, 0, 0, 26)
+    subBtn.BackgroundColor3 = Color3.fromRGB(14, 16, 24)
     subBtn.BackgroundTransparency = 1
     subBtn.BorderSizePixel = 0
-    subBtn.Text = "          " .. subName
-    subBtn.TextColor3 = Color3.fromRGB(100, 100, 115)
+    subBtn.Text = "            [" .. subName .. "]"
+    subBtn.TextColor3 = Color3.fromRGB(110, 115, 135)
     subBtn.Font = Enum.Font.GothamMedium
-    subBtn.TextSize = 10.5
+    subBtn.TextSize = 10
     subBtn.TextXAlignment = Enum.TextXAlignment.Left
     subBtn.Parent = parentTab.SubContainer
 
     local indicator = Instance.new("Frame")
     indicator.Size = UDim2.new(0, 3, 1, -10)
-    indicator.Position = UDim2.new(0, 10, 0, 5)
+    indicator.Position = UDim2.new(0, 14, 0, 5)
     indicator.BackgroundColor3 = ACCENT_COLOR
     indicator.BorderSizePixel = 0
     indicator.Visible = false
@@ -789,25 +981,39 @@ local function AddSubTab(parentTab, subName)
 end
 
 -- ==========================================
--- TABS STRUCTURING
+-- EXACT 5 MAIN TABS & 12 SUBTABS STRUCTURE
 -- ==========================================
 
-local tabMain = AddMainTab("Main", true)
+-- 1. Main
+local tabMain = AddMainTab("Main")
 local pGeneral = AddSubTab(tabMain, "General")
 local pMurder = AddSubTab(tabMain, "Murder")
 local pSheriff = AddSubTab(tabMain, "Sheriff")
 
-local tabVisuals = AddMainTab("Visuals", true)
+-- 2. Visuals
+local tabVisuals = AddMainTab("Visuals")
 local pEnemy = AddSubTab(tabVisuals, "Enemy")
 local pExtra = AddSubTab(tabVisuals, "Extra")
 local pWorld = AddSubTab(tabVisuals, "World")
 
-local tabMovement = AddMainTab("Movement", false)
-local tabMisc = AddMainTab("Miscellaneous", false)
-local tabSetting = AddMainTab("Setting", false)
+-- 3. Movement
+local tabMovement = AddMainTab("Movement")
+local pAntiAim = AddSubTab(tabMovement, "Anti-aim")
+local pTeleports = AddSubTab(tabMovement, "Teleports")
+local pFling = AddSubTab(tabMovement, "Fling")
 
+-- 4. Misc
+local tabMisc = AddMainTab("Misc")
+local pAutoFarm = AddSubTab(tabMisc, "Auto-Farm")
+local pTroll = AddSubTab(tabMisc, "Troll")
+
+-- 5. Settings
+local tabSettings = AddMainTab("Settings")
+local pServer = AddSubTab(tabSettings, "Server")
+
+-- Default Open Tab -> Main [General]
 tabMain.Expanded = true
-tabMain.SubContainer.Size = UDim2.new(1, 0, 0, #tabMain.SubTabs * 28)
+tabMain.SubContainer.Size = UDim2.new(1, 0, 0, #tabMain.SubTabs * 26)
 pGeneral.Page.Visible = true
 activePageRef = pGeneral
 tabMain.Btn.TextColor3 = ACCENT_COLOR
@@ -842,72 +1048,11 @@ local function FindCoinContainer()
     return Workspace:FindFirstChild("Normal") and Workspace.Normal:FindFirstChild("CoinContainer") or Workspace:FindFirstChild("CoinContainer") or Workspace
 end
 
--- MAIN -> GENERAL
-local autoCoinLoop = nil
-pGeneral:AddToggle("Auto Farm Coins", false, function(state)
-    if state then
-        autoCoinLoop = task.spawn(function()
-            while true do
-                task.wait(0.05)
-                if not CheckMaster() then continue end
-                local char = LocalPlayer.Character
-                local root = char and char:FindFirstChild("HumanoidRootPart")
-                local hum = char and char:FindFirstChildOfClass("Humanoid")
-                if root and hum and hum.Health > 0 then
-                    local container = FindCoinContainer()
-                    local coins = {}
-                    for _, v in ipairs(container:GetDescendants()) do
-                        if (v.Name == "CoinVisual" or v.Name == "Coin" or v.Name == "CoinServer" or v.Name == "DroppedCoin") then
-                            local part = v:IsA("BasePart") and v or v:FindFirstChildWhichIsA("BasePart")
-                            if part and part.Transparency < 1 and part:IsDescendantOf(Workspace) then table.insert(coins, part) end
-                        end
-                    end
-                    table.sort(coins, function(a, b) return (root.Position - a.Position).Magnitude < (root.Position - b.Position).Magnitude end)
-                    for _, coinPart in ipairs(coins) do
-                        if not autoCoinLoop or not CheckMaster() then break end
-                        if coinPart and coinPart.Parent and coinPart.Transparency < 1 then
-                            for _, p in ipairs(char:GetDescendants()) do if p:IsA("BasePart") then p.CanCollide = false end end
-                            root.AssemblyLinearVelocity = Vector3.zero
-                            root.CFrame = coinPart.CFrame + Vector3.new(0, 0.2, 0)
-                            if firetouchinterest then pcall(function() firetouchinterest(root, coinPart, 0) task.wait(0.01) firetouchinterest(root, coinPart, 1) end) end
-                            task.wait(0.08)
-                        end
-                    end
-                end
-            end
-        end)
-        table.insert(activeCleanups, function() if autoCoinLoop then task.cancel(autoCoinLoop) end end)
-    else
-        if autoCoinLoop then task.cancel(autoCoinLoop) autoCoinLoop = nil end
-    end
-end)
+-- ==========================================
+-- 📂 MAIN SUBTABS
+-- ==========================================
 
-pGeneral:AddButton("Announce Roles", function()
-    if not CheckMaster() then return end
-    local m, s = GetMurderer(), GetSheriff()
-    local msg = "Murderer: " .. (m and m.Name or "Unknown") .. " | Sheriff: " .. (s and s.Name or "None/Dead")
-    ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents"):FindFirstChild("SayMessageRequest"):FireServer(msg, "All")
-end)
-
-local isSpectating = false
-pGeneral:AddToggle("Spectate Murderer", false, function(state)
-    isSpectating = state
-    if isSpectating then
-        task.spawn(function()
-            while isSpectating do
-                if CheckMaster() then
-                    local m = GetMurderer()
-                    if m and m.Character and m.Character:FindFirstChild("Humanoid") then Workspace.CurrentCamera.CameraSubject = m.Character.Humanoid end
-                end
-                task.wait(0.5)
-            end
-            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then Workspace.CurrentCamera.CameraSubject = LocalPlayer.Character.Humanoid end
-        end)
-    else
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then Workspace.CurrentCamera.CameraSubject = LocalPlayer.Character.Humanoid end
-    end
-end)
-
+-- [General]
 local autoDodgeLoop = nil
 pGeneral:AddToggle("Auto Dodge Murderer", false, function(state)
     if state then
@@ -932,6 +1077,32 @@ pGeneral:AddToggle("Auto Dodge Murderer", false, function(state)
     end
 end)
 
+local isSpectating = false
+pGeneral:AddToggle("Spectate Murderer", false, function(state)
+    isSpectating = state
+    if isSpectating then
+        task.spawn(function()
+            while isSpectating do
+                if CheckMaster() then
+                    local m = GetMurderer()
+                    if m and m.Character and m.Character:FindFirstChild("Humanoid") then Workspace.CurrentCamera.CameraSubject = m.Character.Humanoid end
+                end
+                task.wait(0.5)
+            end
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then Workspace.CurrentCamera.CameraSubject = LocalPlayer.Character.Humanoid end
+        end)
+    else
+        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then Workspace.CurrentCamera.CameraSubject = LocalPlayer.Character.Humanoid end
+    end
+end)
+
+pGeneral:AddButton("Announce Roles", function()
+    if not CheckMaster() then return end
+    local m, s = GetMurderer(), GetSheriff()
+    local msg = "Murderer: " .. (m and m.Name or "Unknown") .. " | Sheriff: " .. (s and s.Name or "None/Dead")
+    ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents"):FindFirstChild("SayMessageRequest"):FireServer(msg, "All")
+end)
+
 pGeneral:AddButton("FPS Booster", function()
     if not CheckMaster() then return end
     for _, v in ipairs(Workspace:GetDescendants()) do
@@ -942,7 +1113,7 @@ pGeneral:AddButton("FPS Booster", function()
     Lighting.GlobalShadows = false
 end)
 
--- MAIN -> MURDER
+-- [Murder]
 local knifeAuraLoop = nil
 pMurder:AddToggle("Knife Kill Aura", false, function(state)
     if state then
@@ -991,7 +1162,7 @@ pMurder:AddSlider("Hitbox Size", 2, 20, 2, function(val)
     end
 end)
 
--- MAIN -> SHERIFF
+-- [Sheriff]
 local silentAimEnabled = false
 if getrawmetatable then
     local gmt = getrawmetatable(game)
@@ -1033,8 +1204,15 @@ pSheriff:AddToggle("Auto Grab Dropped Gun", false, function(state)
     end
 end)
 
--- VISUALS -> ENEMY
+-- ==========================================
+-- 📂 VISUALS SUBTABS (WITH COLOR PICKERS)
+-- ==========================================
+
+-- [Enemy]
 local roleHighlights = {}
+local roleESPColor = Color3.fromRGB(255, 50, 50)
+local roleESPAlpha = 0
+
 pEnemy:AddToggle("Role ESP", false, function(state)
     if state then
         task.spawn(function()
@@ -1043,11 +1221,12 @@ pEnemy:AddToggle("Role ESP", false, function(state)
                     for _, plr in ipairs(Players:GetPlayers()) do
                         if plr ~= LocalPlayer and plr.Character and not plr.Character:FindFirstChild("MM2RoleESP") then
                             local color = Color3.fromRGB(0, 255, 100)
-                            if plr == GetMurderer() then color = Color3.fromRGB(255, 50, 50)
+                            if plr == GetMurderer() then color = roleESPColor
                             elseif plr == GetSheriff() then color = ACCENT_COLOR end
                             local hl = Instance.new("Highlight")
                             hl.Name = "MM2RoleESP"
                             hl.FillColor = color
+                            hl.FillTransparency = roleESPAlpha
                             hl.OutlineColor = Color3.fromRGB(255, 255, 255)
                             hl.Parent = plr.Character
                             table.insert(roleHighlights, hl)
@@ -1061,16 +1240,26 @@ pEnemy:AddToggle("Role ESP", false, function(state)
         for _, hl in ipairs(roleHighlights) do if hl then hl:Destroy() end end
         roleHighlights = {}
     end
+end, roleESPColor, function(newCol, newAlpha)
+    roleESPColor = newCol
+    roleESPAlpha = newAlpha
+    for _, hl in ipairs(roleHighlights) do
+        if hl then hl.FillColor = newCol hl.FillTransparency = newAlpha end
+    end
 end)
 
 local innocentHighlights = {}
+local innocentColor = Color3.fromRGB(0, 255, 120)
+local innocentAlpha = 0
+
 pEnemy:AddToggle("Innocents ESP", false, function(state)
     if state then
         for _, plr in ipairs(Players:GetPlayers()) do
             if plr ~= LocalPlayer and plr ~= GetMurderer() and plr ~= GetSheriff() and plr.Character then
                 local hl = Instance.new("Highlight")
                 hl.Name = "InnocentESP"
-                hl.FillColor = Color3.fromRGB(0, 255, 120)
+                hl.FillColor = innocentColor
+                hl.FillTransparency = innocentAlpha
                 hl.Parent = plr.Character
                 table.insert(innocentHighlights, hl)
             end
@@ -1079,9 +1268,17 @@ pEnemy:AddToggle("Innocents ESP", false, function(state)
         for _, hl in ipairs(innocentHighlights) do if hl then hl:Destroy() end end
         innocentHighlights = {}
     end
+end, innocentColor, function(newCol, newAlpha)
+    innocentColor = newCol
+    innocentAlpha = newAlpha
+    for _, hl in ipairs(innocentHighlights) do
+        if hl then hl.FillColor = newCol hl.FillTransparency = newAlpha end
+    end
 end)
 
 local nameTags = {}
+local nameTagColor = Color3.fromRGB(255, 255, 255)
+
 pEnemy:AddToggle("Name ESP", false, function(state)
     if state then
         for _, plr in ipairs(Players:GetPlayers()) do
@@ -1097,7 +1294,7 @@ pEnemy:AddToggle("Name ESP", false, function(state)
                 lbl.Size = UDim2.new(1, 0, 1, 0)
                 lbl.BackgroundTransparency = 1
                 lbl.Text = plr.Name
-                lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+                lbl.TextColor3 = nameTagColor
                 lbl.TextSize = 10.5
                 lbl.Font = Enum.Font.GothamBold
                 lbl.Parent = bb
@@ -1108,17 +1305,25 @@ pEnemy:AddToggle("Name ESP", false, function(state)
         for _, tag in ipairs(nameTags) do if tag then tag:Destroy() end end
         nameTags = {}
     end
+end, nameTagColor, function(newCol)
+    nameTagColor = newCol
+    for _, tag in ipairs(nameTags) do
+        local lbl = tag:FindFirstChildOfClass("TextLabel")
+        if lbl then lbl.TextColor3 = newCol end
+    end
 end)
 
--- VISUALS -> EXTRA
+-- [Extra]
 local gunHighlights = {}
+local gunESPColor = Color3.fromRGB(255, 215, 0)
+
 pExtra:AddToggle("Gun Drop ESP", false, function(state)
     if state then
         local gunDrop = Workspace:FindFirstChild("GunDrop", true)
         if gunDrop then
             local hl = Instance.new("Highlight")
             hl.Name = "GunESP"
-            hl.FillColor = Color3.fromRGB(255, 215, 0)
+            hl.FillColor = gunESPColor
             hl.Parent = gunDrop
             table.insert(gunHighlights, hl)
         end
@@ -1126,16 +1331,21 @@ pExtra:AddToggle("Gun Drop ESP", false, function(state)
         for _, hl in ipairs(gunHighlights) do if hl then hl:Destroy() end end
         gunHighlights = {}
     end
+end, gunESPColor, function(newCol)
+    gunESPColor = newCol
+    for _, hl in ipairs(gunHighlights) do if hl then hl.FillColor = newCol end end
 end)
 
 local crosshairFrame = nil
+local crosshairColor = ACCENT_COLOR
+
 pExtra:AddToggle("Screen Crosshair", false, function(state)
     if state then
         if not crosshairFrame then
             crosshairFrame = Instance.new("Frame")
             crosshairFrame.Size = UDim2.new(0, 6, 0, 6)
             crosshairFrame.Position = UDim2.new(0.5, -3, 0.5, -3)
-            crosshairFrame.BackgroundColor3 = ACCENT_COLOR
+            crosshairFrame.BackgroundColor3 = crosshairColor
             crosshairFrame.BorderSizePixel = 0
             crosshairFrame.Parent = ScreenGui
             Instance.new("UICorner", crosshairFrame).CornerRadius = UDim.new(1, 0)
@@ -1144,15 +1354,23 @@ pExtra:AddToggle("Screen Crosshair", false, function(state)
     else
         if crosshairFrame then crosshairFrame.Visible = false end
     end
+end, crosshairColor, function(newCol, newAlpha)
+    crosshairColor = newCol
+    if crosshairFrame then
+        crosshairFrame.BackgroundColor3 = newCol
+        crosshairFrame.BackgroundTransparency = newAlpha
+    end
 end)
 
 local tracerAdornment = nil
 local tracerConn = nil
+local tracerColor = Color3.fromRGB(255, 50, 50)
+
 pExtra:AddToggle("Tracer to Murderer", false, function(state)
     if state then
         tracerAdornment = Instance.new("LineHandleAdornment")
         tracerAdornment.Name = "MurdererTracer"
-        tracerAdornment.Color3 = Color3.fromRGB(255, 50, 50)
+        tracerAdornment.Color3 = tracerColor
         tracerAdornment.Thickness = 2.5
         tracerAdornment.AlwaysOnTop = true
         tracerAdornment.Adornee = Workspace
@@ -1174,9 +1392,15 @@ pExtra:AddToggle("Tracer to Murderer", false, function(state)
         if tracerConn then tracerConn:Disconnect() end
         if tracerAdornment then tracerAdornment:Destroy() end
     end
+end, tracerColor, function(newCol, newAlpha)
+    tracerColor = newCol
+    if tracerAdornment then
+        tracerAdornment.Color3 = newCol
+        tracerAdornment.Transparency = newAlpha
+    end
 end)
 
--- VISUALS -> WORLD
+-- [World]
 local originalAmbient = Lighting.Ambient
 pWorld:AddToggle("Fullbright", false, function(state)
     if CheckMaster() then Lighting.Ambient = state and Color3.fromRGB(255, 255, 255) or originalAmbient end
@@ -1188,6 +1412,8 @@ pWorld:AddToggle("No Fog", false, function(state)
 end)
 
 local coinHighlights = {}
+local coinColor = Color3.fromRGB(255, 215, 0)
+
 pWorld:AddToggle("Coin ESP", false, function(state)
     if state then
         local container = FindCoinContainer()
@@ -1197,7 +1423,7 @@ pWorld:AddToggle("Coin ESP", false, function(state)
                 if target and not target:FindFirstChild("CoinHL") then
                     local hl = Instance.new("Highlight")
                     hl.Name = "CoinHL"
-                    hl.FillColor = Color3.fromRGB(255, 215, 0)
+                    hl.FillColor = coinColor
                     hl.Parent = target
                     table.insert(coinHighlights, hl)
                 end
@@ -1207,6 +1433,9 @@ pWorld:AddToggle("Coin ESP", false, function(state)
         for _, hl in ipairs(coinHighlights) do if hl then hl:Destroy() end end
         coinHighlights = {}
     end
+end, coinColor, function(newCol)
+    coinColor = newCol
+    for _, hl in ipairs(coinHighlights) do if hl then hl.FillColor = newCol end end
 end)
 
 local customSky = nil
@@ -1231,7 +1460,56 @@ pWorld:AddSlider("Time of Day", 0, 24, math.floor(Lighting.ClockTime), function(
     if CheckMaster() then Lighting.ClockTime = val end
 end)
 
--- MOVEMENT
+-- ==========================================
+-- 📂 MOVEMENT SUBTABS
+-- ==========================================
+
+-- [Anti-aim]
+local antiAimActive = false
+local spinSpeed = 30
+local aaConn = nil
+
+pAntiAim:AddToggle("Enable Anti-Aim (Spinbot)", false, function(state)
+    antiAimActive = state
+    if state then
+        aaConn = RunService.RenderStepped:Connect(function()
+            if antiAimActive and CheckMaster() and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                local hrp = LocalPlayer.Character.HumanoidRootPart
+                hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(spinSpeed), 0)
+            end
+        end)
+        table.insert(activeCleanups, function() if aaConn then aaConn:Disconnect() end end)
+    else
+        if aaConn then aaConn:Disconnect() end
+    end
+end)
+
+pAntiAim:AddSlider("Yaw Speed", 5, 100, 30, function(val) spinSpeed = val end)
+
+-- [Teleports]
+pTeleports:AddButton("TP to Murderer", function()
+    if not CheckMaster() then return end
+    local m = GetMurderer()
+    if m and m.Character and m.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        LocalPlayer.Character.HumanoidRootPart.CFrame = m.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
+    end
+end)
+
+pTeleports:AddButton("TP to Sheriff", function()
+    if not CheckMaster() then return end
+    local s = GetSheriff()
+    if s and s.Character and s.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        LocalPlayer.Character.HumanoidRootPart.CFrame = s.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
+    end
+end)
+
+pTeleports:AddButton("Teleport Safe Spot", function()
+    if CheckMaster() and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        LocalPlayer.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0, 100, 0)
+    end
+end)
+
+-- [Fling]
 local currentWalkSpeed = 16
 local currentJumpPower = 50
 local renderSteppedConn = RunService.RenderStepped:Connect(function()
@@ -1244,12 +1522,12 @@ local renderSteppedConn = RunService.RenderStepped:Connect(function()
 end)
 table.insert(activeCleanups, function() renderSteppedConn:Disconnect() end)
 
-tabMovement.PageObj:AddSlider("Walk Speed", 16, 120, 16, function(val) currentWalkSpeed = val end)
-tabMovement.PageObj:AddSlider("Jump Power", 50, 250, 50, function(val) currentJumpPower = val end)
+pFling:AddSlider("Walk Speed", 16, 120, 16, function(val) currentWalkSpeed = val end)
+pFling:AddSlider("Jump Power", 50, 250, 50, function(val) currentJumpPower = val end)
 
 local flying = false
 local flySpeed = 60
-tabMovement.PageObj:AddToggle("Fly Mode", false, function(state)
+pFling:AddToggle("Fly Mode", false, function(state)
     flying = state
     if flying then
         task.spawn(function()
@@ -1275,7 +1553,7 @@ end)
 
 local noclip = false
 local noclipConn = nil
-tabMovement.PageObj:AddToggle("Noclip", false, function(state)
+pFling:AddToggle("Noclip", false, function(state)
     noclip = state
     if noclip then
         noclipConn = RunService.Stepped:Connect(function()
@@ -1291,26 +1569,84 @@ tabMovement.PageObj:AddToggle("Noclip", false, function(state)
     end
 end)
 
-tabMovement.PageObj:AddButton("TP to Murderer", function()
-    if not CheckMaster() then return end
-    local m = GetMurderer()
-    if m and m.Character and m.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        LocalPlayer.Character.HumanoidRootPart.CFrame = m.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
+-- ==========================================
+-- 📂 MISC SUBTABS
+-- ==========================================
+
+-- [Auto-Farm]
+local autoCoinLoop = nil
+pAutoFarm:AddToggle("Auto Farm Coins", false, function(state)
+    if state then
+        autoCoinLoop = task.spawn(function()
+            while true do
+                task.wait(0.05)
+                if not CheckMaster() then continue end
+                local char = LocalPlayer.Character
+                local root = char and char:FindFirstChild("HumanoidRootPart")
+                local hum = char and char:FindFirstChildOfClass("Humanoid")
+                if root and hum and hum.Health > 0 then
+                    local container = FindCoinContainer()
+                    local coins = {}
+                    for _, v in ipairs(container:GetDescendants()) do
+                        if (v.Name == "CoinVisual" or v.Name == "Coin" or v.Name == "CoinServer" or v.Name == "DroppedCoin") then
+                            local part = v:IsA("BasePart") and v or v:FindFirstChildWhichIsA("BasePart")
+                            if part and part.Transparency < 1 and part:IsDescendantOf(Workspace) then table.insert(coins, part) end
+                        end
+                    end
+                    table.sort(coins, function(a, b) return (root.Position - a.Position).Magnitude < (root.Position - b.Position).Magnitude end)
+                    for _, coinPart in ipairs(coins) do
+                        if not autoCoinLoop or not CheckMaster() then break end
+                        if coinPart and coinPart.Parent and coinPart.Transparency < 1 then
+                            for _, p in ipairs(char:GetDescendants()) do if p:IsA("BasePart") then p.CanCollide = false end end
+                            root.AssemblyLinearVelocity = Vector3.zero
+                            root.CFrame = coinPart.CFrame + Vector3.new(0, 0.2, 0)
+                            if firetouchinterest then pcall(function() firetouchinterest(root, coinPart, 0) task.wait(0.01) firetouchinterest(root, coinPart, 1) end) end
+                            task.wait(0.08)
+                        end
+                    end
+                end
+            end
+        end)
+        table.insert(activeCleanups, function() if autoCoinLoop then task.cancel(autoCoinLoop) end end)
+    else
+        if autoCoinLoop then task.cancel(autoCoinLoop) autoCoinLoop = nil end
     end
 end)
 
-tabMovement.PageObj:AddButton("TP to Sheriff", function()
-    if not CheckMaster() then return end
-    local s = GetSheriff()
-    if s and s.Character and s.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        LocalPlayer.Character.HumanoidRootPart.CFrame = s.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
+local autoClickerLoop = nil
+pAutoFarm:AddToggle("Auto Clicker", false, function(state)
+    if state then
+        autoClickerLoop = task.spawn(function()
+            while true do
+                if CheckMaster() and mouse1click then mouse1click() end
+                task.wait(0.02)
+            end
+        end)
+        table.insert(activeCleanups, function() if autoClickerLoop then task.cancel(autoClickerLoop) end end)
+    else
+        if autoClickerLoop then task.cancel(autoClickerLoop) end
     end
 end)
 
--- MISCELLANEOUS
+-- [Troll]
+local spammerLoop = nil
+pTroll:AddToggle("Chat Spammer", false, function(state)
+    if state then
+        spammerLoop = task.spawn(function()
+            while true do
+                if CheckMaster() then ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents"):FindFirstChild("SayMessageRequest"):FireServer("thorium.cc - superior experience", "All") end
+                task.wait(3)
+            end
+        end)
+        table.insert(activeCleanups, function() if spammerLoop then task.cancel(spammerLoop) end end)
+    else
+        if spammerLoop then task.cancel(spammerLoop) end
+    end
+end)
+
 local antiFlingActive = false
 local antiFlingConn = nil
-tabMisc.PageObj:AddToggle("Anti-Fling", false, function(state)
+pTroll:AddToggle("Anti-Fling Protection", false, function(state)
     antiFlingActive = state
     if state then
         antiFlingConn = RunService.Stepped:Connect(function()
@@ -1331,52 +1667,22 @@ tabMisc.PageObj:AddToggle("Anti-Fling", false, function(state)
     end
 end)
 
-local autoClickerLoop = nil
-tabMisc.PageObj:AddToggle("Auto Clicker", false, function(state)
-    if state then
-        autoClickerLoop = task.spawn(function()
-            while true do
-                if CheckMaster() and mouse1click then mouse1click() end
-                task.wait(0.02)
-            end
-        end)
-        table.insert(activeCleanups, function() if autoClickerLoop then task.cancel(autoClickerLoop) end end)
-    else
-        if autoClickerLoop then task.cancel(autoClickerLoop) end
-    end
-end)
-
-tabMisc.PageObj:AddSlider("Camera FOV", 70, 120, 70, function(val)
+pTroll:AddSlider("Camera FOV", 70, 120, 70, function(val)
     if CheckMaster() then Workspace.CurrentCamera.FieldOfView = val end
 end)
 
-local spammerLoop = nil
-tabMisc.PageObj:AddToggle("Chat Spammer", false, function(state)
-    if state then
-        spammerLoop = task.spawn(function()
-            while true do
-                if CheckMaster() then ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents"):FindFirstChild("SayMessageRequest"):FireServer("neverlose.cc - superior experience", "All") end
-                task.wait(3)
-            end
-        end)
-        table.insert(activeCleanups, function() if spammerLoop then task.cancel(spammerLoop) end end)
-    else
-        if spammerLoop then task.cancel(spammerLoop) end
-    end
-end)
+-- ==========================================
+-- 📂 SETTINGS SUBTABS
+-- ==========================================
 
-tabMisc.PageObj:AddButton("Unload Cheats", function()
-    if getgenv().ThoriumLib_Cleanup then getgenv().ThoriumLib_Cleanup() end
-end)
-
--- SETTINGS
-tabSetting.PageObj:AddSlider("UI Scale Factor (%)", 50, 150, 100, function(val)
+-- [Server]
+pServer:AddSlider("UI Scale Factor (%)", 50, 150, 100, function(val)
     MainFrameScale.Scale = val / 100
 end)
 
 local uiFonts = {Enum.Font.GothamMedium, Enum.Font.Code, Enum.Font.Jura, Enum.Font.Oswald, Enum.Font.Roboto}
 local currentFontIdx = 1
-tabSetting.PageObj:AddButton("Cycle UI Font", function(btnRef)
+pServer:AddButton("Cycle UI Font", function(btnRef)
     currentFontIdx = currentFontIdx % #uiFonts + 1
     local selectedFont = uiFonts[currentFontIdx]
     btnRef.Text = "Cycle Font: " .. selectedFont.Name
@@ -1387,12 +1693,16 @@ tabSetting.PageObj:AddButton("Cycle UI Font", function(btnRef)
     end
 end)
 
-tabSetting.PageObj:AddToggle("Streamer Mode", false, function(state)
+pServer:AddToggle("Streamer Mode", false, function(state)
     pcall(function() game:GetService("StarterGui"):SetCoreGuiEnabled(Enum.CoreGuiType.Chat, not state) end)
 end)
 
-tabSetting.PageObj:AddButton("Save Settings", function(btnRef)
+pServer:AddButton("Save Settings", function(btnRef)
     btnRef.Text = "Settings Saved!"
     task.wait(1.5)
     btnRef.Text = "Save Settings"
+end)
+
+pServer:AddButton("Unload Cheats", function()
+    if getgenv().ThoriumLib_Cleanup then getgenv().ThoriumLib_Cleanup() end
 end)
