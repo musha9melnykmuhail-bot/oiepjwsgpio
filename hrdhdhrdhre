@@ -40,6 +40,8 @@ local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SoundService = game:GetService("SoundService")
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
 
 -- Modern Rich Blue Translucent Theme Palette
 local ACCENT_COLOR = Color3.fromRGB(85, 135, 255)
@@ -1123,6 +1125,27 @@ pGeneral:AddButton("FPS Booster", function()
     Lighting.GlobalShadows = false
 end)
 
+-- NEW FUNCTION 1/10: Auto Equip Weapon
+local autoEquipLoop = nil
+pGeneral:AddToggle("Auto Equip Weapon", false, function(state)
+    if state then
+        autoEquipLoop = task.spawn(function()
+            while true do
+                if CheckMaster() and LocalPlayer.Character and LocalPlayer:FindFirstChild("Backpack") then
+                    local weapon = LocalPlayer.Backpack:FindFirstChild("Knife") or LocalPlayer.Backpack:FindFirstChild("Gun")
+                    if weapon then
+                        LocalPlayer.Character.Humanoid:EquipTool(weapon)
+                    end
+                end
+                task.wait(0.5)
+            end
+        end)
+        table.insert(activeCleanups, function() if autoEquipLoop then task.cancel(autoEquipLoop) end end)
+    else
+        if autoEquipLoop then task.cancel(autoEquipLoop) autoEquipLoop = nil end
+    end
+end)
+
 -- [Murder]
 local knifeAuraLoop = nil
 pMurder:AddToggle("Knife Kill Aura", false, function(state)
@@ -1172,6 +1195,36 @@ pMurder:AddSlider("Hitbox Size", 2, 20, 2, function(val)
     end
 end)
 
+-- NEW FUNCTION 2/10: Auto Throw Knife
+local autoThrowLoop = nil
+pMurder:AddToggle("Auto Throw Knife", false, function(state)
+    if state then
+        autoThrowLoop = task.spawn(function()
+            while true do
+                if CheckMaster() then
+                    local knife = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Knife")
+                    if knife and knife:FindFirstChild("CreateKnife") then
+                        for _, plr in ipairs(Players:GetPlayers()) do
+                            if plr ~= LocalPlayer and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+                                local dist = (LocalPlayer.Character.HumanoidRootPart.Position - plr.Character.HumanoidRootPart.Position).Magnitude
+                                if dist <= 40 then
+                                    pcall(function()
+                                        knife.CreateKnife:FireServer(plr.Character.HumanoidRootPart.Position, CFrame.new())
+                                    end)
+                                end
+                            end
+                        end
+                    end
+                end
+                task.wait(0.2)
+            end
+        end)
+        table.insert(activeCleanups, function() if autoThrowLoop then task.cancel(autoThrowLoop) end end)
+    else
+        if autoThrowLoop then task.cancel(autoThrowLoop) autoThrowLoop = nil end
+    end
+end)
+
 -- [Sheriff]
 local silentAimEnabled = false
 if getrawmetatable then
@@ -1214,9 +1267,141 @@ pSheriff:AddToggle("Auto Grab Dropped Gun", false, function(state)
     end
 end)
 
+-- NEW FUNCTION 3/10: Show Silent Aim FOV
+local fovCircle = nil
+pSheriff:AddToggle("Show Silent Aim FOV", false, function(state)
+    if state then
+        fovCircle = Instance.new("Frame")
+        fovCircle.Name = "FOVCircle"
+        fovCircle.Size = UDim2.new(0, 160, 0, 160)
+        fovCircle.AnchorPoint = Vector2.new(0.5, 0.5)
+        fovCircle.Position = UDim2.new(0.5, 0, 0.5, 0)
+        fovCircle.BackgroundTransparency = 1
+        fovCircle.Parent = ScreenGui
+
+        local stroke = Instance.new("UIStroke")
+        stroke.Color = ACCENT_COLOR
+        stroke.Thickness = 1.5
+        stroke.Parent = fovCircle
+        Instance.new("UICorner", fovCircle).CornerRadius = UDim.new(1, 0)
+    else
+        if fovCircle then fovCircle:Destroy() fovCircle = nil end
+    end
+end)
+
 -- ==========================================
--- VISUALS SUBTABS (WITH IMGUI COLOR SHUTTER)
+-- VISUALS SUBTABS (WITH ESP PREVIEW & COLOR SHUTTER)
 -- ==========================================
+
+-- [ESP PREVIEW WIDGET INTEGRATION IN ENEMY]
+local updateESPPreview = nil
+do
+    local target = pEnemy:GetNextParent()
+    
+    local previewCard = Instance.new("Frame")
+    previewCard.Name = "ESPPreviewCard"
+    previewCard.Size = UDim2.new(1, -8, 0, 140)
+    previewCard.BackgroundColor3 = ELEMENT_BG
+    previewCard.BackgroundTransparency = 0.15
+    previewCard.BorderSizePixel = 0
+    previewCard.ClipsDescendants = true
+    previewCard.Parent = target
+    Instance.new("UICorner", previewCard).CornerRadius = UDim.new(0, 8)
+
+    local pTitle = Instance.new("TextLabel")
+    pTitle.Size = UDim2.new(1, -20, 0, 22)
+    pTitle.Position = UDim2.new(0, 10, 0, 4)
+    pTitle.BackgroundTransparency = 1
+    pTitle.Text = "ESP Preview"
+    pTitle.TextColor3 = Color3.fromRGB(200, 215, 245)
+    pTitle.Font = Enum.Font.GothamBold
+    pTitle.TextSize = 10.5
+    pTitle.TextXAlignment = Enum.TextXAlignment.Left
+    pTitle.Parent = previewCard
+
+    local pBox = Instance.new("Frame")
+    pBox.Size = UDim2.new(1, -20, 0, 104)
+    pBox.Position = UDim2.new(0, 10, 0, 28)
+    pBox.BackgroundColor3 = Color3.fromRGB(12, 18, 30)
+    pBox.BackgroundTransparency = 0.3
+    pBox.BorderSizePixel = 0
+    pBox.ClipsDescendants = true
+    pBox.Parent = previewCard
+    Instance.new("UICorner", pBox).CornerRadius = UDim.new(0, 6)
+
+    -- Dummy Figure Box
+    local dummyFrame = Instance.new("Frame")
+    dummyFrame.Size = UDim2.new(0, 52, 0, 72)
+    dummyFrame.Position = UDim2.new(0.5, -26, 0.5, -26)
+    dummyFrame.BackgroundTransparency = 0.85
+    dummyFrame.BackgroundColor3 = Color3.fromRGB(255, 87, 51)
+    dummyFrame.Parent = pBox
+    Instance.new("UICorner", dummyFrame).CornerRadius = UDim.new(0, 4)
+
+    local dummyStroke = Instance.new("UIStroke")
+    dummyStroke.Color = Color3.fromRGB(255, 87, 51)
+    dummyStroke.Thickness = 1.4
+    dummyStroke.Parent = dummyFrame
+
+    -- Dummy Head
+    local dummyHead = Instance.new("Frame")
+    dummyHead.Size = UDim2.new(0, 14, 0, 14)
+    dummyHead.Position = UDim2.new(0.5, -7, 0, 4)
+    dummyHead.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    dummyHead.BackgroundTransparency = 0.2
+    dummyHead.Parent = dummyFrame
+    Instance.new("UICorner", dummyHead).CornerRadius = UDim.new(1, 0)
+
+    -- Dummy Name Label
+    local dummyName = Instance.new("TextLabel")
+    dummyName.Size = UDim2.new(0, 120, 0, 12)
+    dummyName.Position = UDim2.new(0.5, -60, 0, -14)
+    dummyName.BackgroundTransparency = 1
+    dummyName.Text = "EnemyPlayer"
+    dummyName.TextColor3 = Color3.fromRGB(255, 255, 255)
+    dummyName.Font = Enum.Font.GothamBold
+    dummyName.TextSize = 9
+    dummyName.Parent = dummyFrame
+
+    -- Dummy Health Bar
+    local dummyHpBg = Instance.new("Frame")
+    dummyHpBg.Size = UDim2.new(0, 3, 1, 0)
+    dummyHpBg.Position = UDim2.new(0, -6, 0, 0)
+    dummyHpBg.BackgroundColor3 = Color3.fromRGB(35, 45, 65)
+    dummyHpBg.BorderSizePixel = 0
+    dummyHpBg.Parent = dummyFrame
+
+    local dummyHpFill = Instance.new("Frame")
+    dummyHpFill.Size = UDim2.new(1, 0, 0.8, 0)
+    dummyHpFill.Position = UDim2.new(0, 0, 0.2, 0)
+    dummyHpFill.BackgroundColor3 = Color3.fromRGB(50, 225, 90)
+    dummyHpFill.BorderSizePixel = 0
+    dummyHpFill.Parent = dummyHpBg
+
+    -- Dummy Extra Info
+    local dummyInfo = Instance.new("TextLabel")
+    dummyInfo.Size = UDim2.new(0, 120, 0, 12)
+    dummyInfo.Position = UDim2.new(0.5, -60, 1, 2)
+    dummyInfo.BackgroundTransparency = 1
+    dummyInfo.Text = "Murderer [14m]"
+    dummyInfo.TextColor3 = Color3.fromRGB(255, 87, 51)
+    dummyInfo.Font = Enum.Font.GothamMedium
+    dummyInfo.TextSize = 8.5
+    dummyInfo.Parent = dummyFrame
+
+    updateESPPreview = function(mainColor, textCol)
+        if mainColor then
+            dummyStroke.Color = mainColor
+            dummyFrame.BackgroundColor3 = mainColor
+            dummyInfo.TextColor3 = mainColor
+        end
+        if textCol then
+            dummyName.TextColor3 = textCol
+        end
+    end
+
+    table.insert(AllUIElements, {Text = "ESP Preview", Frame = previewCard, PageObj = pEnemy})
+end
 
 -- [Enemy]
 local roleHighlights = {}
@@ -1256,6 +1441,7 @@ end, roleESPColor, function(newCol, newAlpha)
     for _, hl in ipairs(roleHighlights) do
         if hl then hl.FillColor = newCol hl.FillTransparency = newAlpha end
     end
+    if updateESPPreview then updateESPPreview(newCol, nil) end
 end)
 
 local innocentHighlights = {}
@@ -1320,6 +1506,125 @@ end, nameTagColor, function(newCol)
     for _, tag in ipairs(nameTags) do
         local lbl = tag:FindFirstChildOfClass("TextLabel")
         if lbl then lbl.TextColor3 = newCol end
+    end
+    if updateESPPreview then updateESPPreview(nil, newCol) end
+end)
+
+-- NEW FUNCTION 4/10: Box ESP
+local boxGuis = {}
+pEnemy:AddToggle("Box ESP", false, function(state)
+    if state then
+        task.spawn(function()
+            while state do
+                if CheckMaster() then
+                    for _, plr in ipairs(Players:GetPlayers()) do
+                        if plr ~= LocalPlayer and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") and not plr.Character:FindFirstChild("ThoriumBoxESP") then
+                            local bg = Instance.new("BillboardGui")
+                            bg.Name = "ThoriumBoxESP"
+                            bg.Adornee = plr.Character.HumanoidRootPart
+                            bg.Size = UDim2.new(4, 0, 5.5, 0)
+                            bg.AlwaysOnTop = true
+                            bg.Parent = plr.Character
+
+                            local f = Instance.new("Frame")
+                            f.Size = UDim2.new(1, 0, 1, 0)
+                            f.BackgroundTransparency = 1
+                            f.Parent = bg
+
+                            local s = Instance.new("UIStroke")
+                            s.Color = ACCENT_COLOR
+                            s.Thickness = 1.5
+                            s.Parent = f
+                            table.insert(boxGuis, bg)
+                        end
+                    end
+                end
+                task.wait(1)
+            end
+        end)
+    else
+        for _, bg in ipairs(boxGuis) do if bg then bg:Destroy() end end
+        boxGuis = {}
+    end
+end)
+
+-- NEW FUNCTION 5/10: Health & Distance ESP
+local hpDistTags = {}
+pEnemy:AddToggle("Health & Distance ESP", false, function(state)
+    if state then
+        task.spawn(function()
+            while state do
+                if CheckMaster() then
+                    for _, plr in ipairs(Players:GetPlayers()) do
+                        if plr ~= LocalPlayer and plr.Character and plr.Character:FindFirstChild("Head") and plr.Character:FindFirstChildOfClass("Humanoid") then
+                            local tag = plr.Character:FindFirstChild("ThoriumHpDist")
+                            if not tag then
+                                tag = Instance.new("BillboardGui")
+                                tag.Name = "ThoriumHpDist"
+                                tag.Adornee = plr.Character.Head
+                                tag.Size = UDim2.new(0, 120, 0, 20)
+                                tag.StudsOffset = Vector3.new(0, 3.2, 0)
+                                tag.AlwaysOnTop = true
+                                tag.Parent = plr.Character
+
+                                local l = Instance.new("TextLabel")
+                                l.Name = "InfoText"
+                                l.Size = UDim2.new(1, 0, 1, 0)
+                                l.BackgroundTransparency = 1
+                                l.TextColor3 = Color3.fromRGB(180, 240, 255)
+                                l.Font = Enum.Font.GothamMedium
+                                l.TextSize = 9.5
+                                l.Parent = tag
+                                table.insert(hpDistTags, tag)
+                            end
+                            
+                            local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+                            local myHrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                            local targetHrp = plr.Character:FindFirstChild("HumanoidRootPart")
+                            local dist = (myHrp and targetHrp) and math.floor((myHrp.Position - targetHrp.Position).Magnitude) or 0
+                            
+                            local l = tag:FindFirstChild("InfoText")
+                            if l then
+                                l.Text = string.format("[%d HP] - %dm", math.floor(hum.Health), dist)
+                            end
+                        end
+                    end
+                end
+                task.wait(0.2)
+            end
+        end)
+    else
+        for _, tag in ipairs(hpDistTags) do if tag then tag:Destroy() end end
+        hpDistTags = {}
+    end
+end)
+
+-- NEW FUNCTION 6/10: Chams Wallhack
+local chamsObjects = {}
+pEnemy:AddToggle("Chams Wallhack", false, function(state)
+    if state then
+        task.spawn(function()
+            while state do
+                if CheckMaster() then
+                    for _, plr in ipairs(Players:GetPlayers()) do
+                        if plr ~= LocalPlayer and plr.Character and not plr.Character:FindFirstChild("ThoriumChams") then
+                            local ch = Instance.new("Highlight")
+                            ch.Name = "ThoriumChams"
+                            ch.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                            ch.FillColor = ACCENT_COLOR
+                            ch.FillTransparency = 0.5
+                            ch.OutlineTransparency = 0.2
+                            ch.Parent = plr.Character
+                            table.insert(chamsObjects, ch)
+                        end
+                    end
+                end
+                task.wait(1)
+            end
+        end)
+    else
+        for _, ch in ipairs(chamsObjects) do if ch then ch:Destroy() end end
+        chamsObjects = {}
     end
 end)
 
@@ -1470,6 +1775,26 @@ pWorld:AddSlider("Time of Day", 0, 24, math.floor(Lighting.ClockTime), function(
     if CheckMaster() then Lighting.ClockTime = val end
 end)
 
+-- NEW FUNCTION 7/10: X-Ray Walls
+local storedTransparencies = {}
+pWorld:AddToggle("X-Ray Walls", false, function(state)
+    if state then
+        for _, v in ipairs(Workspace:GetDescendants()) do
+            if v:IsA("BasePart") and not v.Parent:FindFirstChildOfClass("Humanoid") and v.Transparency < 0.5 then
+                storedTransparencies[v] = v.Transparency
+                v.Transparency = 0.6
+            end
+        end
+    else
+        for part, origTrans in pairs(storedTransparencies) do
+            if part and part.Parent then
+                part.Transparency = origTrans
+            end
+        end
+        storedTransparencies = {}
+    end
+end)
+
 -- ==========================================
 -- MOVEMENT SUBTABS
 -- ==========================================
@@ -1579,6 +1904,21 @@ pFling:AddToggle("Noclip", false, function(state)
     end
 end)
 
+-- NEW FUNCTION 8/10: Infinite Jump
+local infJumpConn = nil
+pFling:AddToggle("Infinite Jump", false, function(state)
+    if state then
+        infJumpConn = UserInputService.JumpRequest:Connect(function()
+            if CheckMaster() and LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
+                LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+        end)
+        table.insert(activeCleanups, function() if infJumpConn then infJumpConn:Disconnect() end end)
+    else
+        if infJumpConn then infJumpConn:Disconnect() infJumpConn = nil end
+    end
+end)
+
 -- ==========================================
 -- MISC SUBTABS
 -- ==========================================
@@ -1635,6 +1975,33 @@ pAutoFarm:AddToggle("Auto Clicker", false, function(state)
         table.insert(activeCleanups, function() if autoClickerLoop then task.cancel(autoClickerLoop) end end)
     else
         if autoClickerLoop then task.cancel(autoClickerLoop) end
+    end
+end)
+
+-- NEW FUNCTION 9/10: Coin Magnet
+local coinMagnetLoop = nil
+pAutoFarm:AddToggle("Coin Magnet", false, function(state)
+    if state then
+        coinMagnetLoop = task.spawn(function()
+            while true do
+                if CheckMaster() and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                    local hrp = LocalPlayer.Character.HumanoidRootPart
+                    local container = FindCoinContainer()
+                    for _, v in ipairs(container:GetDescendants()) do
+                        if (v.Name == "CoinVisual" or v.Name == "Coin" or v.Name == "CoinServer") then
+                            local part = v:IsA("BasePart") and v or v:FindFirstChildWhichIsA("BasePart")
+                            if part and (hrp.Position - part.Position).Magnitude < 25 then
+                                part.CFrame = hrp.CFrame
+                            end
+                        end
+                    end
+                end
+                task.wait(0.1)
+            end
+        end)
+        table.insert(activeCleanups, function() if coinMagnetLoop then task.cancel(coinMagnetLoop) end end)
+    else
+        if coinMagnetLoop then task.cancel(coinMagnetLoop) coinMagnetLoop = nil end
     end
 end)
 
@@ -1711,6 +2078,20 @@ pServer:AddButton("Save Settings", function(btnRef)
     btnRef.Text = "Settings Saved!"
     task.wait(1.5)
     btnRef.Text = "Save Settings"
+end)
+
+-- NEW FUNCTION 10/10: Server Hop / Rejoin
+pServer:AddButton("Server Hop", function(btnRef)
+    btnRef.Text = "Hopping Server..."
+    pcall(function()
+        local servers = HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100")).data
+        for _, s in ipairs(servers) do
+            if s.id ~= game.JobId and s.playing < s.maxPlayers then
+                TeleportService:TeleportToPlaceInstance(game.PlaceId, s.id, LocalPlayer)
+                break
+            end
+        end
+    end)
 end)
 
 pServer:AddButton("Unload Cheats", function()
