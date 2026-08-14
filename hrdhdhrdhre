@@ -41,13 +41,15 @@ local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SoundService = game:GetService("SoundService")
 
+-- Neverlose V4 Style Palette (Deep dark theme with signature indigo/purple accent and soft smooth corners)
 local ACCENT_COLOR = Color3.fromRGB(115, 103, 240)
 local BG_COLOR = Color3.fromRGB(13, 13, 18)
 local ELEMENT_BG = Color3.fromRGB(18, 18, 25)
 local ELEMENT_HOVER = Color3.fromRGB(24, 24, 34)
 local BORDER_COLOR = Color3.fromRGB(38, 38, 52)
-local SMOOTH_TWEEN = TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+local SMOOTH_TWEEN = TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
 
+-- Click Sound
 local ClickSound = Instance.new("Sound")
 ClickSound.SoundId = "rbxassetid://9125402735"
 ClickSound.Volume = 0.8
@@ -72,12 +74,16 @@ ScreenGui.ResetOnSpawn = false
 local success, _ = pcall(function() ScreenGui.Parent = CoreGui end)
 if not success then ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
 
+-- ==========================================
+-- MAIN FRAME & MOBILE BUTTON (Soft Corners)
+-- ==========================================
+
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
 MainFrame.Size = UDim2.new(0, 580, 0, 380)
 MainFrame.Position = UDim2.new(0.5, -290, 0.5, -190)
 MainFrame.BackgroundColor3 = BG_COLOR
-MainFrame.BackgroundTransparency = 0.25
+MainFrame.BackgroundTransparency = 0.05
 MainFrame.BorderSizePixel = 0
 MainFrame.ClipsDescendants = true
 MainFrame.Active = true
@@ -89,12 +95,12 @@ MainFrameScale.Scale = 1.0
 MainFrameScale.Parent = MainFrame
 
 local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 16)
-MainCorner.Parent = MainFrame
+MainCorner.CornerRadius = UDim.new(0, 12) -- Soft rounded corners
+MainFrame.Parent = ScreenGui
 
 local MainStroke = Instance.new("UIStroke")
 MainStroke.Color = BORDER_COLOR
-MainStroke.Thickness = 1.5
+MainStroke.Thickness = 1
 MainStroke.Parent = MainFrame
 
 local MobileToggleBtn = Instance.new("TextButton")
@@ -103,8 +109,8 @@ MobileToggleBtn.AnchorPoint = Vector2.new(0.5, 0.5)
 MobileToggleBtn.Size = UDim2.new(0, 48, 0, 48)
 MobileToggleBtn.Position = UDim2.new(0.05, 25, 0.2, 25)
 MobileToggleBtn.BackgroundColor3 = BG_COLOR
-MobileToggleBtn.BackgroundTransparency = 0.25
-MobileToggleBtn.Text = "T2"
+MobileToggleBtn.BackgroundTransparency = 0.1
+MobileToggleBtn.Text = "NL"
 MobileToggleBtn.TextColor3 = ACCENT_COLOR
 MobileToggleBtn.Font = Enum.Font.GothamBold
 MobileToggleBtn.TextSize = 14
@@ -149,7 +155,7 @@ local TopNotch = Instance.new("Frame")
 TopNotch.Name = "TopNotch"
 TopNotch.Size = UDim2.new(1, 0, 0, 42)
 TopNotch.BackgroundColor3 = Color3.fromRGB(10, 10, 14)
-TopNotch.BackgroundTransparency = 0.3
+TopNotch.BackgroundTransparency = 0.1
 TopNotch.BorderSizePixel = 0
 TopNotch.ZIndex = 5
 TopNotch.Parent = MainFrame
@@ -165,7 +171,7 @@ local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(0, 180, 1, 0)
 Title.Position = UDim2.new(0, 15, 0, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "Thorium v2"
+Title.Text = "neverlose.cc"
 Title.TextColor3 = Color3.fromRGB(240, 240, 255)
 Title.TextSize = 13
 Title.Font = Enum.Font.GothamBold
@@ -173,21 +179,24 @@ Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.ZIndex = 6
 Title.Parent = TopNotch
 
+-- ==========================================
+-- MASTER SWITCH & SEARCH
+-- ==========================================
 local MSContainer = Instance.new("Frame")
-MSContainer.Size = UDim2.new(0, 135, 0, 28)
-MSContainer.Position = UDim2.new(0, 140, 0.5, -14)
+MSContainer.Size = UDim2.new(0, 135, 0, 26)
+MSContainer.Position = UDim2.new(0, 140, 0.5, -13)
 MSContainer.BackgroundColor3 = ELEMENT_BG
-MSContainer.BackgroundTransparency = 0.3
+MSContainer.BackgroundTransparency = 0.2
 MSContainer.ZIndex = 6
 MSContainer.Parent = TopNotch
 
 local MSCorner = Instance.new("UICorner")
-MSCorner.CornerRadius = UDim.new(0, 8)
+MSCorner.CornerRadius = UDim.new(0, 6)
 MSCorner.Parent = MSContainer
 
 local MSLabel = Instance.new("TextLabel")
 MSLabel.Size = UDim2.new(1, -36, 1, 0)
-MSLabel.Position = UDim2.new(0, 10, 0, 0)
+MSLabel.Position = UDim2.new(0, 8, 0, 0)
 MSLabel.BackgroundTransparency = 1
 MSLabel.Text = "Master Switch"
 MSLabel.TextColor3 = Color3.fromRGB(180, 180, 195)
@@ -230,73 +239,67 @@ end)
 
 local SearchContainer = Instance.new("Frame")
 SearchContainer.AnchorPoint = Vector2.new(1, 0.5)
-SearchContainer.Size = UDim2.new(0, 28, 0, 28)
+SearchContainer.Size = UDim2.new(0, 26, 0, 26)
 SearchContainer.Position = UDim2.new(1, -12, 0.5, 0)
-SearchContainer.BackgroundColor3 = ELEMENT_BG
-SearchContainer.BackgroundTransparency = 0.3
+SearchContainer.BackgroundTransparency = 1
 SearchContainer.ClipsDescendants = true
 SearchContainer.ZIndex = 6
 SearchContainer.Parent = TopNotch
 
-local SearchContainerCorner = Instance.new("UICorner")
-SearchContainerCorner.CornerRadius = UDim.new(0, 8)
-SearchContainerCorner.Parent = SearchContainer
-
 local SearchBox = Instance.new("TextBox")
-SearchBox.Size = UDim2.new(1, -28, 1, 0)
-SearchBox.Position = UDim2.new(0, 6, 0, 0)
-SearchBox.BackgroundTransparency = 1
+SearchBox.Size = UDim2.new(1, -26, 1, 0)
+SearchBox.Position = UDim2.new(0, 0, 0, 0)
+SearchBox.BackgroundColor3 = ELEMENT_BG
 SearchBox.PlaceholderText = "Search..."
 SearchBox.Text = ""
 SearchBox.TextColor3 = Color3.fromRGB(240, 240, 255)
-SearchBox.PlaceholderColor3 = Color3.fromRGB(130, 130, 150)
+SearchBox.PlaceholderColor3 = Color3.fromRGB(120, 120, 140)
 SearchBox.Font = Enum.Font.GothamMedium
 SearchBox.TextSize = 11
 SearchBox.Visible = false
-SearchBox.ZIndex = 7
+SearchBox.ZIndex = 6
 SearchBox.Parent = SearchContainer
+Instance.new("UICorner", SearchBox).CornerRadius = UDim.new(0, 6)
 
 local SearchIconBtn = Instance.new("TextButton")
 SearchIconBtn.AnchorPoint = Vector2.new(1, 0)
-SearchIconBtn.Size = UDim2.new(0, 28, 0, 28)
+SearchIconBtn.Size = UDim2.new(0, 26, 0, 26)
 SearchIconBtn.Position = UDim2.new(1, 0, 0, 0)
 SearchIconBtn.BackgroundTransparency = 1
 SearchIconBtn.Text = ""
-SearchIconBtn.ZIndex = 8
+SearchIconBtn.ZIndex = 6
 SearchIconBtn.Parent = SearchContainer
 
 local SearchIconImg = Instance.new("ImageLabel")
-SearchIconImg.Size = UDim2.new(0, 16, 0, 16)
-SearchIconImg.Position = UDim2.new(0.5, -8, 0.5, -8)
+SearchIconImg.Size = UDim2.new(0, 13, 0, 13)
+SearchIconImg.Position = UDim2.new(0.5, -6, 0.5, -6)
 SearchIconImg.BackgroundTransparency = 1
-SearchIconImg.Image = "rbxassetid://6031154871"
-SearchIconImg.ImageColor3 = Color3.fromRGB(220, 220, 245)
-SearchIconImg.ZIndex = 8
+SearchIconImg.Image = "rbxassetid://11419713964"
+SearchIconImg.ImageColor3 = Color3.fromRGB(180, 180, 195)
+SearchIconImg.ZIndex = 6
 SearchIconImg.Parent = SearchIconBtn
 
 local searchOpen = false
 SearchIconBtn.MouseButton1Click:Connect(function()
-    PlayClickSound()
     searchOpen = not searchOpen
     if searchOpen then
         SearchBox.Visible = true
-        TweenService:Create(SearchContainer, SMOOTH_TWEEN, {Size = UDim2.new(0, 165, 0, 28)}):Play()
+        SearchContainer:TweenSize(UDim2.new(0, 160, 0, 26), "Out", "Quart", 0.25, true)
     else
         SearchBox.Text = ""
-        local tw = TweenService:Create(SearchContainer, SMOOTH_TWEEN, {Size = UDim2.new(0, 28, 0, 28)})
-        tw:Play()
-        tw.Completed:Connect(function()
-            if not searchOpen then SearchBox.Visible = false end
-        end)
+        SearchContainer:TweenSize(UDim2.new(0, 26, 0, 26), "Out", "Quart", 0.25, true, function() SearchBox.Visible = false end)
     end
 end)
 
+-- ==========================================
+-- SIDEBAR & PROFILE (Watermark completely removed)
+-- ==========================================
 local Sidebar = Instance.new("ScrollingFrame")
 Sidebar.Name = "Sidebar"
 Sidebar.Size = UDim2.new(0, 145, 1, -95)
 Sidebar.Position = UDim2.new(0, 0, 0, 42)
 Sidebar.BackgroundColor3 = Color3.fromRGB(10, 10, 14)
-Sidebar.BackgroundTransparency = 0.35
+Sidebar.BackgroundTransparency = 0.2
 Sidebar.BorderSizePixel = 0
 Sidebar.ScrollBarThickness = 0
 Sidebar.Parent = MainFrame
@@ -310,11 +313,11 @@ SidebarLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
     Sidebar.CanvasSize = UDim2.new(0, 0, 0, SidebarLayout.AbsoluteContentSize.Y + 10)
 end)
 
+-- Clean Profile Tab (No watermark functionality or elements whatsoever)
 local ProfileBtn = Instance.new("TextButton")
 ProfileBtn.Size = UDim2.new(0, 145, 0, 52)
 ProfileBtn.Position = UDim2.new(0, 0, 1, -52)
 ProfileBtn.BackgroundColor3 = Color3.fromRGB(10, 10, 14)
-ProfileBtn.BackgroundTransparency = 0.3
 ProfileBtn.BorderSizePixel = 0
 ProfileBtn.Text = ""
 ProfileBtn.AutoButtonColor = false
@@ -327,39 +330,26 @@ ProfileLine.BackgroundColor3 = BORDER_COLOR
 ProfileLine.BorderSizePixel = 0
 ProfileLine.Parent = ProfileBtn
 
-local AvatarImg = Instance.new("ImageLabel")
-AvatarImg.Size = UDim2.new(0, 32, 0, 32)
-AvatarImg.Position = UDim2.new(0, 10, 0.5, -16)
-AvatarImg.BackgroundTransparency = 1
-AvatarImg.Image = "rbxthumb://type=AvatarHeadShot&id=" .. tostring(LocalPlayer and LocalPlayer.UserId or 1) .. "&w=150&h=150"
-AvatarImg.Parent = ProfileBtn
-
-local AvatarCorner = Instance.new("UICorner")
-AvatarCorner.CornerRadius = UDim.new(1, 0)
-AvatarCorner.Parent = AvatarImg
-
 local Nickname = Instance.new("TextLabel")
-Nickname.Size = UDim2.new(0, 95, 0, 14)
-Nickname.Position = UDim2.new(0, 48, 0, 11)
+Nickname.Size = UDim2.new(0, 125, 0, 14)
+Nickname.Position = UDim2.new(0, 12, 0, 12)
 Nickname.BackgroundTransparency = 1
-Nickname.Text = LocalPlayer and LocalPlayer.DisplayName or "User"
+Nickname.Text = "Tester"
 Nickname.TextColor3 = Color3.fromRGB(240, 240, 255)
 Nickname.Font = Enum.Font.GothamBold
 Nickname.TextSize = 11
 Nickname.TextXAlignment = Enum.TextXAlignment.Left
-Nickname.TextTruncate = Enum.TextTruncate.AtEnd
 Nickname.Parent = ProfileBtn
 
 local Role = Instance.new("TextLabel")
-Role.Size = UDim2.new(0, 95, 0, 14)
-Role.Position = UDim2.new(0, 48, 0, 26)
+Role.Size = UDim2.new(0, 125, 0, 14)
+Role.Position = UDim2.new(0, 12, 0, 26)
 Role.BackgroundTransparency = 1
-Role.Text = "@" .. (LocalPlayer and LocalPlayer.Name or "User")
+Role.Text = "Neverlose User"
 Role.TextColor3 = ACCENT_COLOR
 Role.Font = Enum.Font.GothamMedium
 Role.TextSize = 9
 Role.TextXAlignment = Enum.TextXAlignment.Left
-Role.TextTruncate = Enum.TextTruncate.AtEnd
 Role.Parent = ProfileBtn
 
 ProfileBtn.MouseEnter:Connect(function()
@@ -383,6 +373,7 @@ ContentLine.BackgroundColor3 = BORDER_COLOR
 ContentLine.BorderSizePixel = 0
 ContentLine.Parent = ContentArea
 
+-- Dragging (Strictly via TopNotch)
 local dragging, dragInput, dragStart, startPos
 TopNotch.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -412,6 +403,9 @@ local keyInputConn = UserInputService.InputBegan:Connect(function(input, gp)
 end)
 table.insert(activeCleanups, function() keyInputConn:Disconnect() end)
 
+-- ==========================================
+-- TAB ENGINE
+-- ==========================================
 local AllUIElements = {}
 local TabsList = {}
 local activePageRef = nil
@@ -484,10 +478,9 @@ local function BuildTabObj(pageData)
         local frame = Instance.new("Frame")
         frame.Size = UDim2.new(1, -8, 0, 32)
         frame.BackgroundColor3 = ELEMENT_BG
-        frame.BackgroundTransparency = 0.25
         frame.BorderSizePixel = 0
         frame.Parent = target
-        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
+        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8) -- Soft smooth corners
 
         local lbl = Instance.new("TextLabel")
         lbl.Size = UDim2.new(1, -45, 1, 0)
@@ -536,10 +529,9 @@ local function BuildTabObj(pageData)
         local frame = Instance.new("Frame")
         frame.Size = UDim2.new(1, -8, 0, 42)
         frame.BackgroundColor3 = ELEMENT_BG
-        frame.BackgroundTransparency = 0.25
         frame.BorderSizePixel = 0
         frame.Parent = target
-        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
+        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
 
         local lbl = Instance.new("TextLabel")
         lbl.Size = UDim2.new(0.7, 0, 0, 18)
@@ -623,10 +615,9 @@ local function BuildTabObj(pageData)
         local frame = Instance.new("Frame")
         frame.Size = UDim2.new(1, -8, 0, 30)
         frame.BackgroundColor3 = ELEMENT_BG
-        frame.BackgroundTransparency = 0.25
         frame.BorderSizePixel = 0
         frame.Parent = target
-        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
+        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
 
         local btn = Instance.new("TextButton")
         btn.Size = UDim2.new(1, 0, 1, 0)
@@ -797,6 +788,10 @@ local function AddSubTab(parentTab, subName)
     return pageObj
 end
 
+-- ==========================================
+-- TABS STRUCTURING
+-- ==========================================
+
 local tabMain = AddMainTab("Main", true)
 local pGeneral = AddSubTab(tabMain, "General")
 local pMurder = AddSubTab(tabMain, "Murder")
@@ -818,6 +813,10 @@ activePageRef = pGeneral
 tabMain.Btn.TextColor3 = ACCENT_COLOR
 tabMain.SubTabs[1].Btn.TextColor3 = ACCENT_COLOR
 tabMain.SubTabs[1].Indicator.Visible = true
+
+-- ==========================================
+-- MM2 GAME LOGIC & FUNCTIONS
+-- ==========================================
 
 local function CheckMaster() return getgenv().Thorium_MasterSwitch end
 
@@ -843,6 +842,7 @@ local function FindCoinContainer()
     return Workspace:FindFirstChild("Normal") and Workspace.Normal:FindFirstChild("CoinContainer") or Workspace:FindFirstChild("CoinContainer") or Workspace
 end
 
+-- MAIN -> GENERAL
 local autoCoinLoop = nil
 pGeneral:AddToggle("Auto Farm Coins", false, function(state)
     if state then
@@ -942,6 +942,7 @@ pGeneral:AddButton("FPS Booster", function()
     Lighting.GlobalShadows = false
 end)
 
+-- MAIN -> MURDER
 local knifeAuraLoop = nil
 pMurder:AddToggle("Knife Kill Aura", false, function(state)
     if state then
@@ -990,6 +991,7 @@ pMurder:AddSlider("Hitbox Size", 2, 20, 2, function(val)
     end
 end)
 
+-- MAIN -> SHERIFF
 local silentAimEnabled = false
 if getrawmetatable then
     local gmt = getrawmetatable(game)
@@ -1031,6 +1033,7 @@ pSheriff:AddToggle("Auto Grab Dropped Gun", false, function(state)
     end
 end)
 
+-- VISUALS -> ENEMY
 local roleHighlights = {}
 pEnemy:AddToggle("Role ESP", false, function(state)
     if state then
@@ -1107,6 +1110,7 @@ pEnemy:AddToggle("Name ESP", false, function(state)
     end
 end)
 
+-- VISUALS -> EXTRA
 local gunHighlights = {}
 pExtra:AddToggle("Gun Drop ESP", false, function(state)
     if state then
@@ -1172,6 +1176,7 @@ pExtra:AddToggle("Tracer to Murderer", false, function(state)
     end
 end)
 
+-- VISUALS -> WORLD
 local originalAmbient = Lighting.Ambient
 pWorld:AddToggle("Fullbright", false, function(state)
     if CheckMaster() then Lighting.Ambient = state and Color3.fromRGB(255, 255, 255) or originalAmbient end
@@ -1226,41 +1231,7 @@ pWorld:AddSlider("Time of Day", 0, 24, math.floor(Lighting.ClockTime), function(
     if CheckMaster() then Lighting.ClockTime = val end
 end)
 
-pWorld:AddSlider("Gravity", 0, 196, 196, function(val)
-    if CheckMaster() then Workspace.Gravity = val end
-end)
-
-pWorld:AddButton("Remove Barriers", function()
-    if not CheckMaster() then return end
-    for _, v in ipairs(Workspace:GetDescendants()) do
-        if v:IsA("BasePart") and (v.Name:lower():find("barrier") or v.Name:lower():find("clip") or (v.Transparency == 1 and v.CanCollide)) then
-            v.CanCollide = false
-        end
-    end
-end)
-
-pWorld:AddToggle("Remove Particles", false, function(state)
-    if not CheckMaster() then return end
-    for _, v in ipairs(Workspace:GetDescendants()) do
-        if v:IsA("ParticleEmitter") or v:IsA("Smoke") or v:IsA("Fire") or v:IsA("Sparkles") then
-            v.Enabled = not state
-        end
-    end
-end)
-
-pWorld:AddToggle("Disable Shadows", false, function(state)
-    if CheckMaster() then Lighting.GlobalShadows = not state end
-end)
-
-pWorld:AddButton("Remove Doors", function()
-    if not CheckMaster() then return end
-    for _, v in ipairs(Workspace:GetDescendants()) do
-        if v:IsA("BasePart") and v.Name:lower():find("door") then
-            v:Destroy()
-        end
-    end
-end)
-
+-- MOVEMENT
 local currentWalkSpeed = 16
 local currentJumpPower = 50
 local renderSteppedConn = RunService.RenderStepped:Connect(function()
@@ -1336,6 +1307,7 @@ tabMovement.PageObj:AddButton("TP to Sheriff", function()
     end
 end)
 
+-- MISCELLANEOUS
 local antiFlingActive = false
 local antiFlingConn = nil
 tabMisc.PageObj:AddToggle("Anti-Fling", false, function(state)
@@ -1383,7 +1355,7 @@ tabMisc.PageObj:AddToggle("Chat Spammer", false, function(state)
     if state then
         spammerLoop = task.spawn(function()
             while true do
-                if CheckMaster() then ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents"):FindFirstChild("SayMessageRequest"):FireServer("Thorium v2 - superior experience", "All") end
+                if CheckMaster() then ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents"):FindFirstChild("SayMessageRequest"):FireServer("neverlose.cc - superior experience", "All") end
                 task.wait(3)
             end
         end)
@@ -1397,6 +1369,7 @@ tabMisc.PageObj:AddButton("Unload Cheats", function()
     if getgenv().ThoriumLib_Cleanup then getgenv().ThoriumLib_Cleanup() end
 end)
 
+-- SETTINGS
 tabSetting.PageObj:AddSlider("UI Scale Factor (%)", 50, 150, 100, function(val)
     MainFrameScale.Scale = val / 100
 end)
